@@ -5,7 +5,7 @@
 # image just copied whatever bytes were in git. A bad merge once put a literal
 # '<<<<<<< HEAD' into index.html and it rendered as text in production.
 # Building here makes the bundle a pure function of the source.
-FROM node:20-slim AS frontend
+FROM node:22-slim AS frontend
 
 WORKDIR /frontend
 
@@ -14,9 +14,8 @@ WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
-# Then the source. frontend/.env is tracked and carries the REACT_APP_* values
-# CRA inlines at build time (API base, Google client ID) — without it the
-# bundle would point at nothing.
+# Then the source. Build-time public configuration is supplied through
+# Docker build arguments/environment when a deployment needs overrides.
 COPY frontend/ ./
 
 # CI=true makes warnings fatal, the same gate used locally. It has caught a TDZ
