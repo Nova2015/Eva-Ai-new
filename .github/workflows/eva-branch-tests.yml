@@ -1,0 +1,46 @@
+name: EVA Branch Tests
+
+on:
+  push:
+    branches:
+      - eva-source-import
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eva-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  targeted-tests:
+    name: Cognitive learning regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pytest>=8,<9" "fastapi>=0.110,<1" "pydantic>=2.6,<3" python-dotenv httpx
+
+      - name: Run cognitive learning regression tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
+          LEARNING_CAPTURE_DEFAULT: "false"
+          TRAIN_ADMIN_KEY: "ci-test-only"
+        run: |
+          python -m pytest -q src/test_learning_loop_cognitive.py src/cognitive/test_chat_integration.py
