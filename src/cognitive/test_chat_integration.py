@@ -393,12 +393,22 @@ def test_the_bridge_does_not_duplicate_execution_logic():
         assert owned_elsewhere not in src, f"{owned_elsewhere} belongs to app.py"
 
 
-def test_no_learning_sink_is_wired():
-    """Candidates stay on the state. Feeding a training store is a decision for
-    whoever owns that queue, not a side effect of answering a message."""
+def test_learning_sink_is_injected_and_never_defaults_to_storage():
+    """The bridge can emit only through an explicitly supplied sink."""
     src = _executable_source()
-    assert "emit(" not in src
+    assert "emit(lessons, sink=learning_sink)" in src
     assert "capture_candidate" not in src
+    assert "learning_sink=None" in src
+
+
+def test_app_requires_explicit_opt_in_for_cognitive_capture():
+    from pathlib import Path
+    app_source = (Path(__file__).resolve().parents[1] / "app.py").read_text(
+        encoding="utf-8"
+    )
+    assert "learning_opt_in=(getattr(req, \"learn\", None) is True)" in app_source
+    assert "learning_sink=(pending_cognitive_candidates.append" in app_source
+    assert "if (learning_opt_in and not learning_is_image and not would_block" in app_source
 
 
 # ── the acceptance rule, tested where it can actually fail ───────────────────
