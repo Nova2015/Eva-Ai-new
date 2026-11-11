@@ -1372,7 +1372,7 @@ def test_reordering_refine_signature_cannot_misroute_the_cache(app_module, monke
     parameter."""
     seen = {}
 
-    def spy(question, answer, context=None, has_image=False, review_cache=None):
+    def spy(question, answer, context=None, has_image=False, review_cache=None, learning_sink=None):
         seen["review_cache"] = review_cache
         seen["has_image"] = has_image
         seen["context"] = context
@@ -1515,7 +1515,7 @@ def test_history_is_bounded(app_module):
 def test_finalize_response_passes_history_to_the_engine(app_module, monkeypatch):
     seen = {}
 
-    def spy(question, answer, context=None, has_image=False, review_cache=None):
+    def spy(question, answer, context=None, has_image=False, review_cache=None, learning_sink=None):
         seen["context"] = context
         from cognitive.chat_bridge import ChatRefinement
         return ChatRefinement(answer=answer)
@@ -1556,7 +1556,7 @@ def test_no_history_still_works(app_module, monkeypatch):
     a first message."""
     seen = {}
 
-    def spy(question, answer, context=None, has_image=False, review_cache=None):
+    def spy(question, answer, context=None, has_image=False, review_cache=None, learning_sink=None):
         seen["context"] = context
         from cognitive.chat_bridge import ChatRefinement
         return ChatRefinement(answer=answer)
