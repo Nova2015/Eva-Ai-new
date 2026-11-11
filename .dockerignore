@@ -1,4 +1,13 @@
 # Build context exclusions.
+
+# Never send local credentials into the Docker build context or bake them into
+# an image. Keep only explicitly named example templates.
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
 #
 # node_modules matters most: it exists on the developer's Windows machine with
 # Windows-native binaries. Copying it into a Linux image would shadow the
