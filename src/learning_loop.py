@@ -28,6 +28,7 @@ import logging
 import os
 import random
 import re
+import secrets
 import sqlite3
 import threading
 import uuid
@@ -56,6 +57,7 @@ CAPTURE_EMPTY = "EMPTY"
 CAPTURE_NOT_ELIGIBLE = "NOT_ELIGIBLE"      # e.g. image chats: the image is not stored
 CAPTURE_SECURITY_FLAGGED = "SECURITY_FLAGGED"
 CAPTURE_PII_SKIPPED = "PII_SKIPPED"
+CAPTURE_PII_UNAVAILABLE = "PII_UNAVAILABLE"
 CAPTURE_DUPLICATE = "DUPLICATE"
 CAPTURE_ERROR = "ERROR"
 
@@ -63,6 +65,12 @@ STATUS_PENDING = "PENDING"
 STATUS_APPROVED = "APPROVED"
 STATUS_REJECTED = "REJECTED"
 STATUS_NEEDS_IMPROVEMENT = "NEEDS_IMPROVEMENT"  # Update 53: parked for editing
+CANDIDATE_CHAT = "CHAT"
+CANDIDATE_COGNITIVE = "COGNITIVE"
+_COGNITIVE_CATEGORIES = {
+    "STRATEGY_OUTCOME", "CAPABILITY_RELIABILITY", "VERIFICATION_GAP",
+    "RECURRING_DEFECT", "REMEDY_EFFICACY",
+}
 _VALID_STATUSES = {
     STATUS_PENDING, STATUS_APPROVED, STATUS_REJECTED, STATUS_NEEDS_IMPROVEMENT
 }
@@ -96,6 +104,7 @@ def _db() -> sqlite3.Connection:
                 sources TEXT,
                 fingerprint TEXT NOT NULL UNIQUE,
                 status TEXT NOT NULL DEFAULT 'PENDING',
+                candidate_type TEXT NOT NULL DEFAULT 'CHAT',
                 reviewer TEXT,
                 reviewed_at TEXT,
                 review_note TEXT
@@ -119,9 +128,23 @@ def _db() -> sqlite3.Connection:
             )
             """
         )
+        # Existing databases predate candidate_type; all historical rows are
+        # chat examples, so the migration safely classifies them as CHAT.
+        columns = {row[1] for row in conn.execute(
+            "PRAGMA table_info(training_candidates)"
+        ).fetchall()}
+        if "candidate_type" not in columns:
+            conn.execute(
+                "ALTER TABLE training_candidates ADD COLUMN "
+                "candidate_type TEXT NOT NULL DEFAULT 'CHAT'"
+            )
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_candidates_status "
             "ON training_candidates(status)"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_candidates_type_status "
+            "ON training_candidates(candidate_type, status)"
         )
         conn.commit()
         _conn = conn
@@ -174,7 +197,10 @@ def capture_candidate(
                 code = CAPTURE_EMPTY
             elif security.get("inbound") or security.get("outbound"):
                 code = CAPTURE_SECURITY_FLAGGED
-            elif detect_pii_fn is not None and (
+            elif detect_pii_fn is None:
+                # Fail closed: without a detector, privacy cannot be established.
+                code = CAPTURE_PII_UNAVAILABLE
+            elif (
                 detect_pii_fn(question).get("pii_detected")
                 or detect_pii_fn(answer).get("pii_detected")
             ):
@@ -224,9 +250,80 @@ def capture_candidate(
     return code
 
 
+# ── Cognitive observations (never chat-SFT examples) ─────────────────────────
+def capture_cognitive_candidate(
+    candidate: Dict[str, Any],
+    user_ref: str = "anonymous",
+    detect_pii_fn: Optional[Callable[[str], Dict[str, Any]]] = None,
+    is_image_chat: bool = False,
+) -> str:
+    """Persist one sanitized cognitive observation as a human-review candidate.
+
+    The cognitive engine supplies only fixed enum/key-value summaries. These
+    records share the review queue but are explicitly typed CO GNITIVE and are
+    never eligible for chat SFT export.
+    """
+    try:
+        if is_image_chat:
+            code = CAPTURE_NOT_ELIGIBLE
+        elif detect_pii_fn is None:
+            code = CAPTURE_PII_UNAVAILABLE
+        elif not isinstance(candidate, dict):
+            code = CAPTURE_NOT_ELIGIBLE
+        else:
+            category = str(candidate.get("category") or "")
+            summary = str(candidate.get("summary") or "").strip()
+            approved = candidate.get("approved", True)
+            safe_summary = re.fullmatch(
+                r"[A-Za-z_]+=[A-Za-z0-9_.]+(?: [A-Za-z_]+=[A-Za-z0-9_.]+)*",
+                summary,
+            )
+            if category not in _COGNITIVE_CATEGORIES or not summary or not safe_summary or approved is not False:
+                code = CAPTURE_NOT_ELIGIBLE
+            elif detect_pii_fn(f"{category} {summary}").get("pii_detected"):
+                code = CAPTURE_PII_SKIPPED
+            else:
+                question = f"COGNITIVE_OBSERVATION:{category}"
+                answer = summary
+                fp = _fingerprint(CANDIDATE_COGNITIVE + "|" + question, answer)
+                with _lock:
+                    conn = _db()
+                    row = conn.execute(
+                        "SELECT 1 FROM training_candidates WHERE fingerprint = ?",
+                        (fp,),
+                    ).fetchone()
+                    if row:
+                        code = CAPTURE_DUPLICATE
+                    else:
+                        conn.execute(
+                            "INSERT INTO training_candidates "
+                            "(id, created_at, user_ref, question, answer, provider, "
+                            "model, intent, agent, confidence, sources, fingerprint, "
+                            "status, candidate_type) "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (
+                                uuid.uuid4().hex[:16], _now(), user_ref or "anonymous",
+                                question, answer, "cognitive_engine", "cognitive",
+                                category.lower(), "cognitive",
+                                max(0.0, min(1.0, float(candidate.get("confidence") or 0.0))),
+                                "[]", fp, STATUS_PENDING, CANDIDATE_COGNITIVE,
+                            ),
+                        )
+                        conn.commit()
+                        code = CAPTURE_CAPTURED
+    except Exception as e:
+        logger.warning("[LEARNING-COGNITIVE] store failed: %s", type(e).__name__)
+        code = CAPTURE_ERROR
+
+    _bump(code)
+    return code
+
+
 # ── Admin gate ───────────────────────────────────────────────────────────────
 def require_train_admin(x_train_key: Optional[str] = Header(None, alias="X-Train-Key")) -> bool:
-    if ADMIN_KEY and x_train_key != ADMIN_KEY:
+    if not ADMIN_KEY:
+        raise HTTPException(status_code=503, detail="Training admin access is disabled: TRAIN_ADMIN_KEY is not configured")
+    if not x_train_key or not secrets.compare_digest(x_train_key, ADMIN_KEY):
         raise HTTPException(status_code=403, detail="X-Train-Key required")
     return True
 
@@ -288,7 +385,7 @@ async def list_candidates(
     conn = _db()
     rows = conn.execute(
         "SELECT id, created_at, user_ref, question, answer, provider, model, "
-        "intent, confidence, sources, status FROM training_candidates "
+        "intent, confidence, sources, status, candidate_type FROM training_candidates "
         "WHERE status = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
         (status, limit, offset),
     ).fetchall()
@@ -303,6 +400,7 @@ async def list_candidates(
                 "question": r[3], "answer": r[4], "provider": r[5],
                 "model": r[6], "intent": r[7], "confidence": r[8],
                 "sources": json.loads(r[9] or "[]"), "status": r[10],
+                "candidate_type": r[11],
             }
             for r in rows
         ],
@@ -364,11 +462,13 @@ async def correct_candidate(
     with _lock:
         conn = _db()
         row = conn.execute(
-            "SELECT status, question FROM training_candidates WHERE id = ?",
+            "SELECT status, question, candidate_type FROM training_candidates WHERE id = ?",
             (candidate_id,),
         ).fetchone()
         if row is None:
             raise HTTPException(status_code=404, detail="Candidate not found")
+        if row[2] != CANDIDATE_CHAT:
+            raise HTTPException(status_code=400, detail="Cognitive observations cannot be rewritten as chat examples")
         conn.execute(
             "UPDATE training_candidates SET answer = ?, fingerprint = ?, status = ?, "
             "reviewer = ?, reviewed_at = ?, review_note = ? WHERE id = ?",
@@ -393,8 +493,8 @@ async def build_dataset(body: BuildBody = BuildBody(), _: bool = Depends(require
     conn = _db()
     rows = conn.execute(
         "SELECT id, question, answer, provider, model, intent, confidence, fingerprint "
-        "FROM training_candidates WHERE status = ? ORDER BY created_at",
-        (STATUS_APPROVED,),
+        "FROM training_candidates WHERE status = ? AND candidate_type = ? ORDER BY created_at",
+        (STATUS_APPROVED, CANDIDATE_CHAT),
     ).fetchall()
 
     # Clean + dedup (fingerprint is unique at capture, re-checked for safety)
