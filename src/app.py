@@ -688,12 +688,13 @@ except Exception as e:
 # Update 51 ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â continuous-learning loop (capture ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ review ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ dataset).
 # Collects data only; never trains. See src/learning_loop.py.
 try:
-    from src.learning_loop import router as train_router, capture_candidate
+    from src.learning_loop import router as train_router, capture_candidate, capture_cognitive_candidate
     LEARNING_LOOP_AVAILABLE = True
     print("Learning loop loaded")
 except Exception as e:
     train_router = None
     capture_candidate = None
+    capture_cognitive_candidate = None
     LEARNING_LOOP_AVAILABLE = False
     print(f"Learning loop not available: {type(e).__name__}: {e}")
 
@@ -1784,6 +1785,10 @@ async def _finalize_response(
     review_cache: Optional[Dict[str, dict]] = None,
     history=None,
     spoken: bool = False,
+    learning_opt_in: bool = False,
+    learning_user_ref: str = "anonymous",
+    learning_detector=None,
+    learning_is_image: bool = False,
 ) -> Dict[str, Any]:
     """
     Run the outbound gate over a chat payload and attach the security summary.
@@ -1800,6 +1805,7 @@ async def _finalize_response(
     thread under a hard timeout without stalling the event loop.
     """
     import asyncio
+    pending_cognitive_candidates = []
     try:
         answer = payload.get("answer") or payload.get("response") or ""
         if not answer:
@@ -1850,9 +1856,13 @@ async def _finalize_response(
                     # `context` and `has_image`, so reordering refine()'s
                     # signature would have silently passed the cache as a bool
                     # with nothing raising. asyncio.to_thread forwards kwargs.
-                    asyncio.to_thread(cognitive_refine, question or "", answer,
-                                      context=_history_context(history),
-                                      review_cache=review_cache),
+                    asyncio.to_thread(
+                        cognitive_refine, question or "", answer,
+                        context=_history_context(history),
+                        review_cache=review_cache,
+                        learning_sink=(pending_cognitive_candidates.append
+                                       if learning_opt_in else None),
+                    ),
                     timeout=cognitive_timeout_seconds(),
                 )
                 if _refined.changed:
@@ -2059,6 +2069,26 @@ async def _finalize_response(
             "inbound": list(inbound_types or []),
             "outbound": list(outbound_types),
         }
+
+        # Cognitive observations are saved only after outbound inspection has
+        # completed, and only for an explicit per-turn opt-in. A flagged answer
+        # never enters the review queue, even in firewall shadow mode.
+        if (learning_opt_in and not learning_is_image and not would_block
+                and not (inbound_types or []) and capture_cognitive_candidate
+                and learning_detector is not None):
+            for _candidate in pending_cognitive_candidates:
+                try:
+                    capture_cognitive_candidate(
+                        candidate=_candidate.model_dump(),
+                        user_ref=learning_user_ref,
+                        detect_pii_fn=learning_detector,
+                        is_image_chat=False,
+                    )
+                except Exception as _learning_error:
+                    logger.warning(
+                        "[LEARNING-COGNITIVE] hook failed: %s",
+                        type(_learning_error).__name__,
+                    )
 
         if would_block and enforcing:
             # Blocked responses still populate every field the frontend
@@ -5676,7 +5706,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                 "intent": "save_memory",
                 "sources": [],
             }, _inbound_types, req.user_id, _client_ip, original_question,
-                None, req.history, bool(req.voice_response)), original_question)
+                None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
 
         # Update 35a: an explicit request for a spreadsheet FILE, with the data
         # in the message, produces a real .xlsx ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â not a description of one, and
@@ -5688,7 +5718,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
             return _capture_learning(req, await _finalize_response(
                 _sheet, _inbound_types, req.user_id, _client_ip,
                 original_question, None, req.history,
-                bool(req.voice_response)), original_question)
+                bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
 
         # Update 39A: an explicit presentation request produces a real, verified
         # .pptx. Its gate uses a different noun set than the spreadsheet gate,
@@ -5699,7 +5729,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
             return _capture_learning(req, await _finalize_response(
                 _deck, _inbound_types, req.user_id, _client_ip,
                 original_question, None, req.history,
-                bool(req.voice_response)), original_question)
+                bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
 
         chart_response = (deterministic_chart_response(original_question or "")
                           or _chart_from_table(original_question or ""))
@@ -5724,7 +5754,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                 "confidence": 1.0,
                 "fallback": False,
             }, _inbound_types, req.user_id, _client_ip, original_question,
-                None, req.history, bool(req.voice_response)), original_question)
+                None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
         # ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Phase 1 cognitive decision gate (shadow-first) 
         # Build the Problem State up-front and record a structured decision
         # BEFORE any model runs, reusing understand/assess/strategy ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no parallel
@@ -5752,14 +5782,14 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                         _gate_response_payload(_SAFETY_STOP_MESSAGE, "safety_stop",
                                                "cognitive-safety", _gate),
                         _inbound_types, req.user_id, _client_ip, original_question,
-                        None, req.history, bool(req.voice_response)), original_question)
+                        None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
                 if _gate_should_clarify(_gate):
                     _clar = _gate.clarification_question or (
                         "Could you share a little more detail so I can help precisely?")
                     return _capture_learning(req, await _finalize_response(
                         _gate_response_payload(_clar, "clarify", "cognitive-clarify", _gate),
                         _inbound_types, req.user_id, _client_ip, original_question,
-                        None, req.history, bool(req.voice_response)), original_question)
+                        None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
 
         prompt_intent = _detect_prompt_intent(original_question)
         # The steer rides in the system turn (see enhancement_guidance); the
@@ -5818,7 +5848,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                 run.event("Image request received", 20, data={"filename": req.image_filename or ""})
                 if relevant_memory:
                     req.question = f"Relevant memories:\n{relevant_memory}\n\nQuestion:\n{original_question or 'Analyze this uploaded image.'}"
-                result = _run_vision_agent(req, bool(req.voice_response))
+                result = _run_vision_agent(req, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False)))
                 run.event("Vision agent returned analysis", 70, data={"provider": result.get("provider", "vision-agent")})
                 agent_status = get_agent_status("vision")
                 try:
@@ -5858,7 +5888,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                     "agent_id": agent_status["id"],
                     "agent_path": agent_status["path"],
                 }, _inbound_types, req.user_id, _client_ip, original_question,
-                    None, req.history, bool(req.voice_response)), original_question)
+                    None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
         # Cognitive tool-assisted execution: gather verified read-only evidence
         # before EVA Local answers. Never auto-run the reasoning ("think") tool.
         _cognitive_evidence = ""
@@ -6100,7 +6130,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                             "agent_path": agent_status["path"],
                         }, _inbound_types, req.user_id, _client_ip,
                         original_question, None, req.history,
-                        bool(req.voice_response)),
+                        bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))),
                         original_question,
                     )
 
@@ -6200,7 +6230,7 @@ async def chat(request: Request, req: ChatRequest, current_user: str = Depends(g
                     "retrievers_used": rag_result.get("retrievers_used", []),
                     "fallback_used": rag_result.get("fallback_used", rag_result.get("fallback", False)),
                 }, _inbound_types, req.user_id, _client_ip, original_question,
-                    None, req.history, bool(req.voice_response)), original_question)
+                    None, req.history, bool(req.voice_response), learning_opt_in=(getattr(req, "learn", None) is True), learning_user_ref=_shadow_user_ref(getattr(req, "user_id", "")), learning_detector=_fallback_detect_pii if SECURITY_FALLBACK_AVAILABLE else None, learning_is_image=bool(getattr(req, "image", False))), original_question)
         except Exception as rag_err:
             print(f"[RAG v2] fallback to original chat: {rag_err}")
 
