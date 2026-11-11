@@ -1,0 +1,28 @@
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+
+      - name: Install Hugging Face Hub
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U huggingface_hub
+
+      - name: Upload backend to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          hf upload keshav1212/eva-ml-service ./eva-ml-service . --repo-type=space --token "$HF_TOKEN"

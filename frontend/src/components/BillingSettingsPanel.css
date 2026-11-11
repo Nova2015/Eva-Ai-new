@@ -1,0 +1,43 @@
+@import './DeveloperSettingsPanel.css';
+
+.eva-billing-plans {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eva-billing-plan {
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 13px;
+  background: var(--eva-settings-input);
+  padding: 12px;
+  display: grid;
+  gap: 7px;
+}
+
+.eva-billing-plan h4 {
+  margin: 0;
+  color: var(--eva-settings-text);
+}
+
+.eva-billing-plan strong {
+  color: var(--eva-settings-text);
+  font-size: 24px;
+}
+
+.eva-billing-plan span {
+  color: var(--eva-settings-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 920px) {
+  .eva-billing-plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .eva-billing-plans {
+    grid-template-columns: 1fr;
+  }
+}

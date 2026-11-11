@@ -1,0 +1,85 @@
+{
+    "name": "aria-dashboard",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@react-oauth/google": "^0.13.5",
+        "@testing-library/dom": "^10.4.1",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@testing-library/user-event": "^13.5.0",
+        "axios": "^1.16.0",
+        "firebase": "^12.14.0",
+        "framer-motion": "^12.43.0",
+        "katex": "^0.18.1",
+        "lucide-react": "^1.14.0",
+        "mermaid": "^11.16.0",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "react-markdown": "^10.1.0",
+        "react-router-dom": "^7.15.0",
+        "react-scripts": "5.0.1",
+        "react-syntax-highlighter": "^16.1.1",
+        "react-window": "^2.3.0",
+        "recharts": "^3.8.1",
+        "rehype-katex": "^7.0.1",
+        "remark-gfm": "^4.0.1",
+        "serve": "^14.2.6",
+        "three": "^0.160.1",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "start:user": "set \"PORT=8002\" && set \"REACT_APP_API_BASE=http://127.0.0.1:3000\" && react-scripts start",
+        "start:admin": "set \"PORT=8003\" && set \"REACT_APP_ADMIN_MODE=true\" && set \"REACT_APP_API_BASE=http://127.0.0.1:3000\" && react-scripts start",
+        "start:backend": "cd .. && python -m uvicorn src.app:app --host 0.0.0.0 --port 3000",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "desktop": "npm run build && electron .",
+        "dist": "npm run build && electron-builder"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "proxy": "http://127.0.0.1:8000",
+    "allowScripts": {
+        "@firebase/util@1.15.1": true,
+        "core-js": true,
+        "core-js-pure": true,
+        "protobufjs@7.6.1": true
+    },
+    "devDependencies": {
+        "concurrently": "^10.0.5",
+        "electron": "^44.7.2",
+        "electron-builder": "^26.15.3",
+        "wait-on": "^9.1.0"
+    },
+    "main": "electron.js",
+    "build": {
+        "appId": "com.evaai.desktop",
+        "productName": "EVA AI",
+        "directories": {
+            "output": "dist"
+        },
+        "win": {
+            "target": "nsis"
+        }
+    },
+    "homepage": "."
+}

@@ -1,0 +1,13 @@
+services:
+  eva-api:
+    build: .
+    ports:
+      - "8002:7860"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./generated:/app/generated
+      - ./uploads:/app/uploads
+      - ./faiss_index:/app/faiss_index
+    restart: unless-stopped

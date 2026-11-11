@@ -1,0 +1,115 @@
+@import './SettingsPanels.css';
+
+.eva-dev-settings {
+  display: grid;
+  gap: 14px;
+}
+
+.eva-settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eva-settings-tabs button {
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 999px;
+  background: var(--eva-settings-button);
+  color: var(--eva-settings-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 820;
+  padding: 8px 11px;
+}
+
+.eva-settings-tabs button.is-active {
+  background: var(--eva-settings-active);
+  color: var(--eva-settings-text);
+  border-color: rgba(96, 165, 250, 0.42);
+}
+
+.eva-dev-score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eva-dev-score {
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 12px;
+  background: var(--eva-settings-input);
+  padding: 11px;
+}
+
+.eva-dev-score span {
+  display: block;
+  color: var(--eva-settings-muted);
+  font-size: 11px;
+  font-weight: 760;
+  text-transform: capitalize;
+}
+
+.eva-dev-score strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--eva-settings-text);
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.eva-dev-table {
+  display: grid;
+  gap: 7px;
+  overflow-x: auto;
+}
+
+.eva-dev-table-head,
+.eva-dev-table-row {
+  display: grid;
+  gap: 9px;
+  align-items: center;
+  min-width: 620px;
+}
+
+.eva-dev-table-head {
+  color: var(--eva-settings-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.eva-dev-table-row {
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 11px;
+  background: var(--eva-settings-input);
+  color: var(--eva-settings-text);
+  font-size: 12px;
+  padding: 9px;
+}
+
+.eva-dev-table-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-dev-table-actions {
+  display: flex;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.eva-settings-empty {
+  border: 1px dashed var(--eva-settings-line);
+  border-radius: 12px;
+  color: var(--eva-settings-muted);
+  padding: 14px;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .eva-dev-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,22 @@
+html {
+  text-size-adjust: 100%;
+  /* Scales all rem-based UI text. Driven by Settings > Appearance "Font size",
+     which sets --eva-font-scale on the document root (see AppearanceSettingsPanel.js).
+     Defaults to 1 so Medium leaves the 16px root size unchanged. */
+  font-size: calc(16px * var(--eva-font-scale, 1));
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}

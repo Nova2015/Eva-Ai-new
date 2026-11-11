@@ -1,0 +1,258 @@
+.eva-public-page {
+  min-height: 100vh;
+  background: #070b14;
+  color: #f8fafc;
+  font-family: var(--sans, Inter, system-ui, sans-serif);
+}
+
+.eva-public-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 16px clamp(18px, 5vw, 64px);
+  background: rgba(7, 11, 20, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.eva-public-brand,
+.eva-public-nav a,
+.eva-public-footer a {
+  color: #f8fafc;
+  text-decoration: none;
+}
+
+.eva-public-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.eva-public-brand span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #2563eb;
+}
+
+.eva-public-nav nav,
+.eva-public-nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.eva-public-nav a {
+  color: rgba(248, 250, 252, 0.78);
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.eva-public-nav a.active,
+.eva-public-nav a:hover {
+  color: #ffffff;
+}
+
+.eva-public-button,
+.eva-public-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid rgba(96, 165, 250, 0.5);
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff !important;
+  font-weight: 850;
+  padding: 0 18px;
+}
+
+.eva-public-hero {
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 112px clamp(20px, 6vw, 76px) 70px;
+  background-image:
+    linear-gradient(90deg, rgba(7, 11, 20, 0.995) 0%, rgba(7, 11, 20, 0.92) 46%, rgba(7, 11, 20, 0.28) 100%),
+    url('../../public/eva-hero.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.eva-public-hero-content {
+  width: min(760px, 100%);
+}
+
+.eva-public-kicker {
+  margin: 0 0 14px;
+  color: #93c5fd;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eva-public-hero h1,
+.eva-public-page-title h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(42px, 8vw, 86px);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.eva-public-hero p,
+.eva-public-page-title p {
+  max-width: 650px;
+  margin: 22px 0 0;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: clamp(17px, 2vw, 21px);
+  line-height: 1.55;
+}
+
+.eva-public-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.eva-public-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #ffffff;
+  padding: 0 18px;
+  text-decoration: none;
+  font-weight: 850;
+}
+
+.eva-public-section {
+  padding: 56px clamp(20px, 6vw, 76px);
+  background: #0b1020;
+}
+
+.eva-public-section.alt {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.eva-public-section h2,
+.eva-public-page-title h1 {
+  margin: 0 0 22px;
+}
+
+.eva-public-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.eva-public-card,
+.eva-public-price,
+.eva-public-faq {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 20px;
+}
+
+.alt .eva-public-card,
+.alt .eva-public-price,
+.alt .eva-public-faq {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.eva-public-card h3,
+.eva-public-price h3,
+.eva-public-faq h3 {
+  margin: 0 0 8px;
+}
+
+.eva-public-card p,
+.eva-public-price p,
+.eva-public-faq p,
+.eva-public-footer p {
+  margin: 0;
+  color: rgba(148, 163, 184, 0.94);
+  line-height: 1.55;
+}
+
+.eva-public-price strong {
+  display: block;
+  margin: 12px 0;
+  font-size: 34px;
+}
+
+.eva-public-shot {
+  min-height: 320px;
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.72)),
+    url('../../public/eva-hero.png');
+  background-size: cover;
+  background-position: center right;
+}
+
+.eva-public-page-title {
+  padding: 132px clamp(20px, 6vw, 76px) 56px;
+  background: #070b14;
+}
+
+.eva-public-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 36px clamp(20px, 6vw, 76px);
+  background: #070b14;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.eva-public-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+@media (max-width: 860px) {
+  .eva-public-nav {
+    position: sticky;
+    grid-template-columns: 1fr;
+  }
+
+  .eva-public-nav nav,
+  .eva-public-nav-actions {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .eva-public-hero {
+    min-height: 82vh;
+    background-position: 68% center;
+  }
+
+  .eva-public-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .eva-public-footer {
+    flex-direction: column;
+  }
+}

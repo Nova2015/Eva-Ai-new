@@ -1,0 +1,26 @@
+@import './DeveloperSettingsPanel.css';
+
+.eva-team-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 11px;
+  background: var(--eva-settings-input);
+  padding: 9px;
+}
+
+.eva-team-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--eva-settings-text);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .eva-team-row {
+    grid-template-columns: 1fr;
+  }
+}

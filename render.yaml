@@ -1,0 +1,68 @@
+services:
+  - type: web
+    name: eva-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CODE_MODEL
+        value: gpt-4o-mini
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: HF_API_TOKEN
+        sync: false
+      - key: FAL_API_KEY
+        sync: false
+      # Neural TTS. Optional: without it EVA uses built-in browser speech.
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: RAG_CONFIDENCE_THRESHOLD
+        value: "0.35"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+      # ── EVA Server Local (JARVIS 3) ──────────────────────────────────────
+      # Local-first routing: Machine A is preferred, Machine B takes over when A
+      # is unavailable, and the cloud cascade below runs only when neither can
+      # serve. Enabled here so the switch lives in code rather than in someone's
+      # dashboard memory.
+      #
+      # INERT until at least one machine URL is set: with no URL there is no
+      # candidate, so failover_chain() stays groq -> openai -> gemini and
+      # configured("eva_local") stays False. Turning this on alone changes
+      # nothing.
+      - key: EVA_LOCAL_ENABLED
+        value: "true"
+      # Set in the dashboard, not here: these are infrastructure endpoints that
+      # differ per deployment. A Cloudflare Tunnel hostname is accepted; a bare
+      # public IP is not (the SSRF policy rejects public IP literals, the
+      # metadata address, embedded credentials and non-HTTP(S) schemes).
+      # B is optional — A alone is a valid deployment, and B is never invented.
+      - key: EVA_LOCAL_A_URL
+        sync: false
+      - key: EVA_LOCAL_A_MODEL
+        sync: false
+      - key: EVA_LOCAL_B_URL
+        sync: false
+      - key: EVA_LOCAL_B_MODEL
+        sync: false
+      # Optional knobs, sensible defaults if unset:
+      #   EVA_LOCAL_CONNECT_TIMEOUT_S   2.0  - raise if the tunnel handshake runs
+      #                                        close, or a healthy machine gets
+      #                                        marked down
+      #   EVA_LOCAL_HEALTH_COOLDOWN_S  30.0  - how long a failed machine is skipped
+      #   EVA_LOCAL_MAX_TOKENS          512  - generation cap for local replies
