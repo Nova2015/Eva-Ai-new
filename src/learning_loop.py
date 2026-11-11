@@ -260,7 +260,7 @@ def capture_cognitive_candidate(
     """Persist one sanitized cognitive observation as a human-review candidate.
 
     The cognitive engine supplies only fixed enum/key-value summaries. These
-    records share the review queue but are explicitly typed CO GNITIVE and are
+    records share the review queue but are explicitly typed COGNITIVE and are
     never eligible for chat SFT export.
     """
     try:
