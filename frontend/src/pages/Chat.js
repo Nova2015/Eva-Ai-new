@@ -1762,64 +1762,10 @@ export default function Chat({ API = DEFAULT_API_BASE }) {
   const [input, setInput]                 = useState('');
   const [selectedAgentFolder, setSelectedAgentFolder] = useState('');
   const [agentPanelOpen, setAgentPanelOpen] = useState(false);
-  const [agentTask, setAgentTask] = useState('');
   const [agentJobId, setAgentJobId] = useState('');
   const [, setAgentStatus] = useState('');
   const [, setAgentPending] = useState([]);
   const [, setAgentBusy] = useState(false);
-
-  const runSelectedAgent = async () => {
-    if (!selectedAgentFolder) {
-      alert('Select a folder first.');
-      return;
-    }
-    if (!agentTask.trim()) {
-      alert('Enter an Agent task first.');
-      return;
-    }
-    if (!window.evaDesktop?.runAgent) {
-      alert('Agent actions are available in the EVA desktop app only.');
-      return;
-    }
-
-    setAgentBusy(true);
-    setAgentStatus('Starting...');
-    setAgentPending([]);
-    try {
-      const result = await window.evaDesktop.runAgent(agentTask.trim(), selectedAgentFolder);
-      setAgentJobId(result.job_id);
-      setAgentStatus('running');
-      setAgentTask('');
-    } catch (error) {
-      console.error('Agent start failed:', error);
-      setAgentStatus(`Error: ${error.message || 'Could not start Agent'}`);
-    } finally {
-      setAgentBusy(false);
-    }
-  };
-
-  const refreshAgentStatus = async () => {
-    if (!agentJobId || !window.evaDesktop?.getAgentStatus) return;
-    try {
-      const result = await window.evaDesktop.getAgentStatus(agentJobId);
-      setAgentStatus(result.status || 'unknown');
-      setAgentPending(result.pending || []);
-    } catch (error) {
-      setAgentStatus(`Error: ${error.message || 'Could not get Agent status'}`);
-    }
-  };
-
-  const decideAgentApproval = async (ok) => {
-    if (!agentJobId || !window.evaDesktop?.approveAgent) return;
-    try {
-      await window.evaDesktop.approveAgent(agentJobId, ok);
-      setAgentPending([]);
-      await refreshAgentStatus();
-    } catch (error) {
-      setAgentStatus(`Error: ${error.message || 'Approval failed'}`);
-    }
-  };
-
 
   const chooseAgentFolder = async () => {
     if (!window.evaDesktop?.selectFolder) {
