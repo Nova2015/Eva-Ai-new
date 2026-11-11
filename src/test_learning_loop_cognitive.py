@@ -13,6 +13,7 @@ def isolated_learning_db(tmp_path, monkeypatch):
     monkeypatch.setattr(ll, "DB_PATH", tmp_path / "learning.db")
     monkeypatch.setattr(ll, "DATASET_DIR", tmp_path / "datasets")
     monkeypatch.setattr(ll, "ADMIN_KEY", "test-admin-key")
+    monkeypatch.setenv("HF_ML_URL", "http://127.0.0.1:1")
     ll._conn = None
     ll._capture_stats.clear()
     yield
@@ -101,6 +102,33 @@ def test_approved_cognitive_candidate_never_enters_chat_sft(isolated_learning_db
     rows = [json.loads(line) for line in train_path.read_text(encoding="utf-8").splitlines()]
     assert len(rows) == 1
     assert rows[0]["meta"]["candidate_id"] == "chat-test"
+
+
+def test_existing_database_rows_migrate_to_chat_type(isolated_learning_db):
+    import sqlite3
+    conn = sqlite3.connect(str(ll.DB_PATH))
+    conn.execute(
+        "CREATE TABLE training_candidates ("
+        "id TEXT PRIMARY KEY, created_at TEXT NOT NULL, user_ref TEXT NOT NULL, "
+        "question TEXT NOT NULL, answer TEXT NOT NULL, provider TEXT, model TEXT, "
+        "intent TEXT, agent TEXT, confidence REAL, sources TEXT, "
+        "fingerprint TEXT NOT NULL UNIQUE, status TEXT NOT NULL DEFAULT 'PENDING', "
+        "reviewer TEXT, reviewed_at TEXT, review_note TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO training_candidates "
+        "(id, created_at, user_ref, question, answer, fingerprint, status) "
+        "VALUES ('legacy', '2026-01-01T00:00:00Z', 'user', 'old question', "
+        "'old answer', 'legacy-fingerprint', 'APPROVED')"
+    )
+    conn.commit()
+    conn.close()
+    ll._conn = None
+
+    migrated = ll._db().execute(
+        "SELECT candidate_type, status FROM training_candidates WHERE id = 'legacy'"
+    ).fetchone()
+    assert migrated == (ll.CANDIDATE_CHAT, ll.STATUS_APPROVED)
 
 
 def test_admin_gate_fails_closed_when_key_unset(isolated_learning_db, monkeypatch):
