@@ -57,7 +57,7 @@ from . import executor as _execution_backend
 # _outcome_of is Step 12's answer to "did this remedy actually work". Reused
 # rather than restated so the bridge and the learning record cannot disagree
 # about whether a correction succeeded.
-from .learning import CorrectionCycle, CorrectionOutcome, learn, _outcome_of
+from .learning import CorrectionCycle, CorrectionOutcome, learn, emit, _outcome_of
 from .planning import TaskPlan, plan_for
 from .state import (
     CognitivePhase,
@@ -380,6 +380,7 @@ def refine(
     context: Optional[Sequence[str]] = None,
     has_image: bool = False,
     review_cache: Optional[Dict[str, dict]] = None,
+    learning_sink=None,
 ) -> ChatRefinement:
     """Run the cognitive loop over one produced answer.
 
@@ -434,14 +435,15 @@ def refine(
             # NOT_REQUIRED covers ordinary prose replies, which is most of them:
             # nothing checkable, so nothing claimed and nothing changed.
             _record(state, _executed(answer), first,
-                    correct(state, _executed(answer), first), None, outcome)
+                    correct(state, _executed(answer), first), None, outcome,
+                    learning_sink)
             return outcome
 
         # ── CORRECT ─────────────────────────────────────────────────────────
         proposal = correct(state, _executed(answer), first)
         if proposal.status is not CorrectionStatus.CORRECTIONS_PROPOSED:
             outcome.notes.append(f"no correction: {proposal.status.value}")
-            _record(state, _executed(answer), first, proposal, None, outcome)
+            _record(state, _executed(answer), first, proposal, None, outcome, learning_sink)
             return outcome
 
         # ── ACT: exactly one remedy per cycle ───────────────────────────────
@@ -476,7 +478,8 @@ def refine(
             outcome.notes.append(
                 f"correction not accepted: reverify={second.status.value}")
 
-        _record(state, _executed(corrected), first, proposal, cycle, outcome)
+        _record(state, _executed(corrected), first, proposal, cycle, outcome,
+                learning_sink)
         return outcome
 
     except Exception as exc:                      # noqa: BLE001 - never propagate
@@ -487,7 +490,7 @@ def refine(
 
 
 def _record(state, result, verification, correction_report, cycle,
-            outcome: ChatRefinement) -> None:
+            outcome: ChatRefinement, learning_sink=None) -> None:
     """Hand the finished cycle to LEARN. Observational, and never fatal.
 
     No sink is passed, so nothing is emitted anywhere: candidates stay on the
@@ -499,5 +502,6 @@ def _record(state, result, verification, correction_report, cycle,
         lessons = learn(state, result, verification, correction_report, cycle=cycle)
         if lessons.candidates:
             outcome.notes.append(f"{len(lessons.candidates)} lesson(s) proposed")
+            emit(lessons, sink=learning_sink)
     except Exception:
         pass
