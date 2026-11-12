@@ -33,7 +33,7 @@ services:
         sync: false
       # External EVA ML/RAG service. Configure this in the Render dashboard.
       - key: HF_ML_URL
-        sync: false
+        value: https://keshav1212-eva-ml-service.hf.space
       # Learning capture remains opt-in. Admin endpoints fail closed without a key.
       - key: LEARNING_CAPTURE_DEFAULT
         value: "false"
