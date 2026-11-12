@@ -1,7 +1,7 @@
-﻿const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
-const { agentRequest } = require("./agent-api-helper");
+const { agentRequest, resolveProjectRoot } = require("./agent-api-helper");
 const fs = require("fs");
 let selectedWorkspace = null;
 
@@ -71,30 +71,47 @@ function startProcess(command, args, cwd) {
 }
 
 function startServices() {
-  const root = "D:\\Eva_Ai_brain";
-  startProcess(
+  const root = resolveProjectRoot();
+  if (!root) {
+    console.error("[EVA] Project root not found. Set EVA_PROJECT_ROOT or launch from the repository frontend directory.");
+    return;
+  }
+
+  const startIfAvailable = (label, pythonPath, args, cwd) => {
+    if (!fs.existsSync(pythonPath)) {
+      console.warn(`[EVA] ${label} skipped; Python interpreter not found: ${pythonPath}`);
+      return;
+    }
+    startProcess(pythonPath, args, cwd);
+  };
+
+  startIfAvailable(
+    "OpenHands Agent",
     path.join(root, ".openhands-venv", "Scripts", "python.exe"),
     ["-m", "uvicorn", "src.agent_service:app", "--host", "127.0.0.1", "--port", "8100"],
     root
   );
 
-
-  startProcess(
-    path.join(root, ".venv", "Scripts", "python.exe"),
-    ["-m", "uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "3000"],
+  const backendPython = path.join(root, ".venv", "Scripts", "python.exe");
+  startIfAvailable(
+    "EVA backend (port 3000)",
+    backendPython,
+    ["-m", "uvicorn", "src.app:app", "--host", "127.0.0.1", "--port", "3000"],
+    root
+  );
+  startIfAvailable(
+    "EVA backend (port 8000)",
+    backendPython,
+    ["-m", "uvicorn", "src.app:app", "--host", "127.0.0.1", "--port", "8000"],
     root
   );
 
-  startProcess(
-    path.join(root, ".venv", "Scripts", "python.exe"),
-    ["-m", "uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"],
-    root
-  );
-
-  startProcess(
-    path.join(root, "eva-ml-service", ".venv", "Scripts", "python.exe"),
+  const mlRoot = path.join(root, "eva-ml-service");
+  startIfAvailable(
+    "EVA ML service",
+    path.join(mlRoot, ".venv", "Scripts", "python.exe"),
     ["app.py"],
-    path.join(root, "eva-ml-service")
+    mlRoot
   );
 }
 
@@ -116,9 +133,15 @@ function createWindow() {
   win.webContents.on("will-navigate", (event, url) => {
     console.log("[EVA NAVIGATION]", url);
 
-    if (url.startsWith("file:///D:/") && !url.includes("index.html")) {
+    if (url.startsWith("file://")) {
+      const targetPath = new URL(url).pathname;
+      const expectedPath = require("url").pathToFileURL(
+        path.join(__dirname, "build", "index.html")
+      ).pathname;
+      if (targetPath !== expectedPath) {
       console.trace("[EVA BLOCKED FILE NAVIGATION]");
       event.preventDefault();
+      }
     }
   });
 
@@ -126,7 +149,9 @@ function createWindow() {
   console.error("[EVA LOAD FAILED]", { code, description, url });
   });
   win.loadFile(path.join(__dirname, "build", "index.html"));
-  win.webContents.openDevTools();
+  if (!app.isPackaged || process.env.EVA_DEVTOOLS === "true") {
+    win.webContents.openDevTools();
+  }
 }
 
 app.whenReady().then(() => {
