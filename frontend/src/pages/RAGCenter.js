@@ -207,7 +207,7 @@ function DocCard({ doc, onDelete }) {
 // state is dropped. Any status not in this map falls back to the backend's own
 // `current_step` string, so nothing is ever labelled with an invented name.
 export const STAGE_LABELS = {
-  QUEUED:    'Queued for processingÃ¢â‚¬Â¦',
+  QUEUED:    'Queued for processing…',
   PARSING:   'Reading documentÃ¢â‚¬Â¦',
   CHUNKING:  'Chunking textÃ¢â‚¬Â¦',
   VALIDATING:'Validating chunksÃ¢â‚¬Â¦',
@@ -221,7 +221,7 @@ const TERMINAL_STATES = new Set(['COMPLETE', 'FAILED', 'CANCELLED']);
 
 export function stageLabel(job) {
   if (!job) return '';
-  return STAGE_LABELS[job.status] || job.current_step || 'ProcessingÃ¢â‚¬Â¦';
+  return STAGE_LABELS[job.status] || job.current_step || 'Processing…';
 }
 
 // Renders real job state. Progress bar animates from the payload's numeric
