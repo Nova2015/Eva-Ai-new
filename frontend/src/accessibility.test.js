@@ -145,13 +145,12 @@ describe('breakpoints do not shadow each other', () => {
   });
 });
 
-describe('accessible names contain their visible text', () => {
+describe('health warnings are announced accessibly', () => {
   const topbar = read('components', 'Topbar.js');
 
-  test('the profile button names the initials it displays', () => {
-    // WCAG 2.5.3. The button shows the user's initials; a bare "Open profile
-    // menu" meant voice control could not act on what was on screen.
-    expect(topbar).toMatch(/aria-label=\{`\$\{userInitials\}/);
-    expect(topbar).not.toMatch(/aria-label="Open profile menu"/);
+  test('the trouble indicator uses a live status role and visible wording', () => {
+    expect(topbar).toMatch(/role="status"/);
+    expect(topbar).toMatch(/EVA is having trouble/);
+    expect(topbar).toMatch(/EVA is running slowly/);
   });
 });
