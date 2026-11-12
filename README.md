@@ -53,6 +53,8 @@ The frontend keeps loopback defaults for local browser and Electron sessions. Ho
 
 Never commit real secrets or local `.env` files. The Docker build context excludes them.
 
+For an existing Render service, add `TRAIN_ADMIN_KEY` manually in the service's Environment settings. Render does not prompt for newly added `sync: false` variables during later Blueprint updates.
+
 ## Docker
 
 Build the production image from the repository root:
