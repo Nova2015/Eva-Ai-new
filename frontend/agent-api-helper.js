@@ -1,8 +1,21 @@
-﻿const fs = require("fs");
+const fs = require("fs");
+const path = require("path");
+
+function resolveProjectRoot() {
+  const configured = process.env.EVA_PROJECT_ROOT?.trim();
+  const candidates = [
+    configured ? path.resolve(configured) : null,
+    path.resolve(__dirname, ".."),
+  ].filter(Boolean);
+
+  return candidates.find((root) => fs.existsSync(path.join(root, "src", "app.py"))) || null;
+}
 
 function readAgentKey() {
-  const envPath = "D:\\Eva_Ai_brain\\.env";
-  if (!fs.existsSync(envPath)) throw new Error("EVA .env file not found");
+  const root = resolveProjectRoot();
+  if (!root) throw new Error("EVA project root not found. Set EVA_PROJECT_ROOT to the repository root.");
+  const envPath = path.join(root, ".env");
+  if (!fs.existsSync(envPath)) throw new Error(`EVA .env file not found at ${envPath}`);
 
   const line = fs.readFileSync(envPath, "utf8")
     .split(/\r?\n/)
@@ -28,4 +41,4 @@ async function agentRequest(route, method = "GET", body) {
   return data;
 }
 
-module.exports = { agentRequest };
+module.exports = { agentRequest, resolveProjectRoot };
