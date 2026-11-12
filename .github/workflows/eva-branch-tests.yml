@@ -44,7 +44,7 @@ jobs:
           TRAIN_ADMIN_KEY: "ci-test-only"
           SECRET_KEY: "ci-only-not-a-production-secret-rotate-never-use-in-deployment"
         run: |
-          python -m pytest -q -rs src/test_learning_loop_cognitive.py src/cognitive/test_chat_integration.py
+          python -m pytest -q -rs src/test_learning_loop_cognitive.py src/cognitive/test_chat_integration.py src/test_ml_health_probe.py
 
   frontend-tests:
     name: Frontend unit tests
