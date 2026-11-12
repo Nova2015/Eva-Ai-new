@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './uploadProgress.css';
+import { API_BASE_URL, RAG_API_BASE_URL } from '../lib/apiConfig';
 
 // Ã¢â€â‚¬Ã¢â€â‚¬ Fetch with timeout Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 async function fetchWithTimeout(url, options = {}, ms = 245000, attempt = 0) {
@@ -24,10 +25,8 @@ async function fetchWithTimeout(url, options = {}, ms = 245000, attempt = 0) {
   }
 }
 
-const defaultApi = process.env.REACT_APP_API_BASE || 'http://127.0.0.1:8000';
-// RAG service (upload / ingest / query / stats / documents) lives on the HF service with
-// persistent Supabase storage Ã¢â‚¬â€ not Render. Override with REACT_APP_RAG_API_BASE if needed.
-const RAG_API = process.env.REACT_APP_RAG_API_BASE || 'http://127.0.0.1:7860';
+const defaultApi = API_BASE_URL;
+const RAG_API = RAG_API_BASE_URL;
 
 function getHeaders() {
   const token = ['aria_token', 'token', 'access_token', 'authToken']
