@@ -45,14 +45,10 @@ import { isProvenanceRequest, describeProvenance, lastAnsweredMessage } from '..
 import ProvenanceDetails from '../components/ProvenanceDetails';
 import ProvenanceBadges from '../components/ProvenanceBadges';
 import { imageGeneratorMayHandle } from '../lib/visualIntent';
+import { API_BASE_URL, RAG_API_BASE_URL } from '../lib/apiConfig';
 
-const DEFAULT_API_BASE = (
-  process.env.REACT_APP_API_BASE ||
-  process.env.REACT_APP_API_BASE_URL ||
-  'http://127.0.0.1:8000'
-).replace(/\/+$/, '');
-// Local RAG/ML service
-const RAG_API = process.env.REACT_APP_RAG_API_BASE || 'http://127.0.0.1:7860';
+const DEFAULT_API_BASE = API_BASE_URL;
+const RAG_API = RAG_API_BASE_URL;
 
 // ----------------------------------------
 const SUGGESTION_TYPE_COLORS = { Action: 'var(--green)', Improve: 'var(--warn)', Learn: 'var(--cyan)', Create: 'var(--accent)' };
