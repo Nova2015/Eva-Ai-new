@@ -99,6 +99,8 @@ for _path in (str(ROOT_DIR), str(BASE_DIR)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+from ml_health import probe_ml_health
+
 # RAG is served by the dedicated EVA ML service on port 7860.
 
 try:
@@ -4919,7 +4921,8 @@ async def api_health_vision():
 async def api_health_full():
     started = datetime.now(timezone.utc)
     commit = _deploy_commit()
-    ml_status = 200
+    ml_base = (os.getenv("HF_ML_URL") or "http://127.0.0.1:7860").strip().rstrip("/")
+    ml_status = await probe_ml_health(ml_base, timeout=2.0)
     return {
         "backend_status": 200,
         "ml_status": ml_status,
