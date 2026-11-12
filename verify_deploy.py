@@ -101,6 +101,8 @@ def main():
         data = full.get("data") or {}
         if data.get("backend_status") != 200:
             failures.append("/api/health/full backend_status is not 200")
+        if data.get("ml_status") != 200:
+            failures.append("/api/health/full ml_status is not 200 (ML service unreachable or unhealthy)")
         if "response_time_ms" not in data:
             failures.append("/api/health/full missing response_time_ms")
         if not data.get("backend_commit"):
