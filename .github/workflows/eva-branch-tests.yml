@@ -71,3 +71,7 @@ jobs:
         env:
           CI: "true"
         run: npm test -- --watchAll=false --runInBand
+
+      - name: Check Electron entrypoint syntax
+        working-directory: frontend
+        run: node --check electron.js && node --check agent-api-helper.js && node --check preload.js
