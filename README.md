@@ -49,7 +49,7 @@ The frontend keeps loopback defaults for local browser and Electron sessions. Ho
 | `LEARNING_DATASET_DIR` | Optional output directory for reviewed dataset versions. |
 | `REACT_APP_API_BASE` | Optional frontend build-time override for the backend URL. |
 | `REACT_APP_RAG_API_BASE` | Optional frontend build-time override for the ML/RAG URL. |
-| `OPENAI_API_KEY`, `GROQ_API_KEY`, `GOOGLE_API_KEY` | Optional provider credentials, depending on enabled providers. |
+| `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY` | Optional provider credentials, depending on enabled providers. |
 
 Never commit real secrets or local `.env` files. The Docker build context excludes them.
 
