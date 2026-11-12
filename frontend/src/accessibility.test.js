@@ -153,4 +153,9 @@ describe('health warnings are announced accessibly', () => {
     expect(topbar).toMatch(/EVA is having trouble/);
     expect(topbar).toMatch(/EVA is running slowly/);
   });
+
+  test('the AI indicator probes the configured ML service health endpoint', () => {
+    expect(topbar).toContain("import { RAG_API_BASE_URL } from '../lib/apiConfig';");
+    expect(topbar).toContain("healthStatus(RAG_API, '/ml/health')");
+  });
 });
