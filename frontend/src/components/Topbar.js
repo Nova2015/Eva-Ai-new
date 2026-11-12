@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Menu } from 'lucide-react';
+import { RAG_API_BASE_URL } from '../lib/apiConfig';
 const titles = {
   '/chat': ['Chat', 'EVA / chat'],
   '/knowledge': ['Files', 'EVA / files'],
@@ -71,7 +72,7 @@ export default function Topbar({ API, onMenuClick, isMobile, onOpenSettings, onL
       }
     };
 
-    const RAG_API = (process.env.REACT_APP_RAG_API_BASE || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+    const RAG_API = RAG_API_BASE_URL;
 
     // The AI indicator used to poll the ML service's /health, which returns
     // {"status":"ok"} whenever the process is alive. It therefore read
@@ -113,7 +114,7 @@ export default function Topbar({ API, onMenuClick, isMobile, onOpenSettings, onL
       }
       const [backendState, mlReachable, aiPath] = await Promise.all([
         API ? healthStatus(API, '/api/health') : Promise.resolve(HEALTH_STATE.OFFLINE),
-        healthStatus(RAG_API, '/health'),
+        healthStatus(RAG_API, '/ml/health'),
         aiPathStatus(),
       ]);
       if (!cancelled) {
