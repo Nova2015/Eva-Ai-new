@@ -34,6 +34,7 @@ import PublishedAgents from './pages/PublishedAgents';
 import RAGCenter from './pages/RAGCenter';
 import SecurityCenter from './pages/SecurityCenter';
 import { ensureLocalAuth } from './localAuth';
+import { API_BASE_URL } from './lib/apiConfig';
 import LandingPage from './pages/LandingPage';
 import PricingPage from './pages/PricingPage';
 import AboutPage from './pages/AboutPage';
@@ -41,7 +42,7 @@ import ContactPage from './pages/ContactPage';
 import { ThemeProvider } from './context/ThemeContext';
 import AgentPanel from './pages/AgentPanel';
 
-const API = (process.env.REACT_APP_API_BASE || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+const API = API_BASE_URL;
 const ADMIN_WORKSPACE_PORT = '8003';
 const isAdminPort = () => (typeof window !== 'undefined' && window.location.port === ADMIN_WORKSPACE_PORT);
 const isAdminWorkspaceMode = () => (
