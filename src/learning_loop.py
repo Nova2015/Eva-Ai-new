@@ -18,8 +18,8 @@ redeploying, or point LEARNING_DB_PATH / LEARNING_DATASET_DIR at a disk.
 
 Admin gating: endpoints that expose content or mutate state require the
 X-Train-Key header to match env TRAIN_ADMIN_KEY. If TRAIN_ADMIN_KEY is
-unset the gate is open (matches the current deployment's auth posture);
-set it in Render env to lock the loop down.
+unset, those endpoints return 503 and remain disabled (fail closed). Configure
+a strong key in the deployment environment to enable the admin workflow.
 """
 
 import hashlib
