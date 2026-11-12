@@ -26,7 +26,7 @@ RUN CI=true npm run build
 FROM python:3.11-slim
 
 # Install only essential system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     git \
     poppler-utils \
@@ -46,8 +46,14 @@ COPY backend/ ./backend/
 # app.py resolves this as ROOT_DIR/frontend/build (src/app.py:1043).
 COPY --from=frontend /frontend/build ./frontend/build
 
-# Create necessary directories
-RUN mkdir -p data generated uploads faiss_index models static
+# Create writable runtime directories and drop root privileges. The app's
+# SQLite stores, generated files and uploads all live under /app.
+RUN mkdir -p data generated uploads faiss_index models static \
+    && useradd --create-home --uid 10001 --shell /usr/sbin/nologin eva \
+    && chown -R eva:eva /app
+
+ENV HOME=/home/eva
+USER eva
 
 WORKDIR /app/src
 
