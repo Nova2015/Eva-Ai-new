@@ -30,6 +30,9 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
+      # External EVA ML/RAG service. Configure this in the Render dashboard.
+      - key: HF_ML_URL
+        sync: false
       - key: RAG_CONFIDENCE_THRESHOLD
         value: "0.35"
       - key: PYTHONUNBUFFERED
