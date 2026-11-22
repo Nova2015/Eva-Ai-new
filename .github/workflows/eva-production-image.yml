@@ -1,0 +1,90 @@
+name: EVA Production Image Build
+
+on:
+  push:
+    branches:
+      - eva-source-import
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eva-image-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker-build:
+    name: Build production Docker image (no push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Reconcile and verify frontend lockfile
+        working-directory: frontend
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: eva-ai-ci:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Confirm image was created
+        run: docker image inspect "eva-ai-ci:${GITHUB_SHA}" --format '{{.Id}}'
+
+      - name: Smoke-test backend inside the built container
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="eva-ai-ci:${GITHUB_SHA}"
+          container="eva-ai-smoke-${GITHUB_RUN_ID}"
+          docker run -d --name "$container" -p 7860:7860 \
+            -e SECRET_KEY="ci-smoke-only-secret-not-for-deployment-000000000000" \
+            -e HF_ML_URL="http://127.0.0.1:1" \
+            "$image"
+          cleanup() {
+            docker logs "$container" || true
+            docker rm -f "$container" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent http://127.0.0.1:7860/api/health > /tmp/eva-health.json; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Backend did not become healthy in the container."
+            exit 1
+          fi
+
+          python -c "import json; d=json.load(open('/tmp/eva-health.json')); assert d.get('ok') is True, d"
+          curl --fail --silent http://127.0.0.1:7860/api/health/full > /tmp/eva-full-health.json
+          python -c "import json; d=json.load(open('/tmp/eva-full-health.json')); assert d.get('backend_status') == 200, d; assert d.get('ml_status') == 0, d; assert d.get('frontend_version'), d"

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVA · AI Training Center</title>
+<style>
+/* ── Theme ─────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#f5f6fa; --panel:#ffffff; --line:#e3e6ee; --text:#17203a; --muted:#66708c;
+  --accent:#5b5bd6; --accent2:#8b5cf6; --ok:#1a9e6c; --warn:#c98a12; --bad:#d5484f;
+  --chip:#eef0f8; --shadow:0 1px 3px rgba(20,25,60,.08);
+}
+[data-theme="dark"]{
+  --bg:#0f1220; --panel:#181c30; --line:#272d4a; --text:#e8eaf6; --muted:#8f97b8;
+  --accent:#7b7bf0; --accent2:#a78bfa; --ok:#2fbe86; --warn:#e2a83d; --bad:#e46b71;
+  --chip:#232946; --shadow:0 1px 3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0}
+body{font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;padding:7px 14px}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--bad);border-color:var(--bad)}
+button.warn{color:var(--warn);border-color:var(--warn)}
+button.ok{color:var(--ok);border-color:var(--ok)}
+button:disabled{opacity:.5;cursor:default}
+input,textarea,select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:100%}
+textarea{resize:vertical;min-height:80px}
+a{color:var(--accent)}
+/* ── Layout ────────────────────────────────────────────────────────────── */
+#side{width:230px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;overflow-y:auto}
+#side h1{font-size:16px;padding:0 8px 14px}
+#side h1 span{color:var(--accent)}
+#side nav button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:8px;margin:1px 0;color:var(--muted)}
+#side nav button.active{background:var(--chip);color:var(--text);font-weight:600}
+#main{flex:1;padding:22px;max-width:1200px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.topbar h2{font-size:19px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.card .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.card .v{font-size:24px;font-weight:700;margin-top:4px}
+.card .s{font-size:12px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.panel h3{font-size:15px;margin-bottom:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{flex:0 0 auto}
+.grow{flex:1 1 200px!important}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);text-align:left;font-weight:600;border-bottom:1px solid var(--line);padding:7px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+tr:hover td{background:var(--chip)}
+.tag{display:inline-block;background:var(--chip);border-radius:20px;padding:1px 9px;font-size:12px}
+.tag.ok{color:var(--ok)} .tag.bad{color:var(--bad)} .tag.warn{color:var(--warn)}
+.muted{color:var(--muted)} .small{font-size:12px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.clip{max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pager{display:flex;gap:8px;align-items:center;margin-top:10px}
+.note{border-left:3px solid var(--accent2);padding:8px 12px;background:var(--chip);border-radius:0 8px 8px 0;font-size:13px;margin:8px 0}
+pre.ans{white-space:pre-wrap;background:var(--chip);border-radius:8px;padding:10px;font-size:13px;max-height:260px;overflow:auto}
+#toast{position:fixed;bottom:18px;right:18px;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:420px}
+canvas{max-width:100%}
+@media(max-width:800px){body{flex-direction:column}#side{width:100%;height:auto;position:static;display:flex;align-items:center;gap:6px;overflow-x:auto}#side nav{display:flex}#side h1{padding:0 10px 0 0;white-space:nowrap}}
+</style>
+</head>
+<body>
+<aside id="side">
+  <h1>EVA <span>Training Center</span></h1>
+  <nav id="nav"></nav>
+</aside>
+<main id="main">
+  <div class="topbar">
+    <h2 id="title"></h2>
+    <div class="row">
+      <input id="adminKey" placeholder="X-Train-Key (if set)" style="width:190px">
+      <button onclick="saveKey()">Save key</button>
+      <button onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+  </div>
+  <div id="view"></div>
+</main>
+<div id="toast"></div>
+
+<script>
+/* ══ Core helpers ══════════════════════════════════════════════════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const HF=null; let MLURL=null; // filled from /registry
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,3200)};
+const key=()=>localStorage.getItem('trainKey')||'';
+function saveKey(){localStorage.setItem('trainKey',$('#adminKey').value.trim());toast('Key saved');render();}
+async function api(path,opts={}){
+  const h={'Content-Type':'application/json',...(opts.headers||{})};
+  if(key())h['X-Train-Key']=key();
+  const r=await fetch(path,{...opts,headers:h});
+  if(r.status===403){toast('403 — set the X-Train-Key above');throw new Error('403');}
+  if(!r.ok){let d='';try{d=(await r.json()).detail||''}catch(e){};toast(`Error ${r.status} ${d}`);throw new Error(r.status);}
+  return r.json();
+}
+function toggleTheme(){const d=document.documentElement;const dark=d.dataset.theme==='dark';d.dataset.theme=dark?'':'dark';localStorage.setItem('theme',dark?'':'dark');$('#themeBtn').textContent=dark?'🌙':'☀️';}
+if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.dataset.theme='dark';}
+document.addEventListener('DOMContentLoaded',()=>{$('#adminKey').value=key();$('#themeBtn').textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙';});
+function barChart(canvas,labels,values,color){
+  const c=canvas.getContext('2d'),W=canvas.width=canvas.clientWidth*2,H=canvas.height=180*2;c.scale(1,1);
+  const max=Math.max(...values,1),n=values.length,bw=Math.min(70,(W-40)/n*0.66),gap=(W-40)/n;
+  const css=getComputedStyle(document.documentElement);
+  c.fillStyle=css.getPropertyValue('--muted');c.font='20px system-ui';
+  values.forEach((v,i)=>{
+    const h=(H-60)*v/max,x=30+i*gap+(gap-bw)/2,y=H-40-h;
+    c.fillStyle=color||css.getPropertyValue('--accent');c.beginPath();c.roundRect(x,y,bw,h,6);c.fill();
+    c.fillStyle=css.getPropertyValue('--text');c.textAlign='center';
+    c.fillText(String(v),x+bw/2,y-8);
+    c.fillStyle=css.getPropertyValue('--muted');
+    c.fillText(String(labels[i]).slice(0,12),x+bw/2,H-12);
+  });
+}
+function lineChart(canvas,series,labels){
+  // series: [{name, values:[0..1 or raw], color, pct}]
+  const c=canvas.getContext('2d'),W=canvas.width=canvas.clientWidth*2,H=canvas.height=200*2;
+  const css=getComputedStyle(document.documentElement);
+  const pad={l:70,r:20,t:24,b:44};
+  const n=Math.max(...series.map(s=>s.values.length),1);
+  const maxV=Math.max(...series.flatMap(s=>s.values),0.0001);
+  c.strokeStyle=css.getPropertyValue('--line');c.lineWidth=2;c.font='19px system-ui';
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(H-pad.t-pad.b)*i/4;
+    c.beginPath();c.moveTo(pad.l,y);c.lineTo(W-pad.r,y);c.stroke();
+    c.fillStyle=css.getPropertyValue('--muted');c.textAlign='right';
+    c.fillText((maxV*(1-i/4)).toFixed(maxV<=1?2:0),pad.l-10,y+7);
+  }
+  series.forEach(s=>{
+    c.strokeStyle=s.color;c.lineWidth=4;c.beginPath();
+    s.values.forEach((v,i)=>{
+      const x=pad.l+(W-pad.l-pad.r)*(n===1?0.5:i/(n-1));
+      const y=pad.t+(H-pad.t-pad.b)*(1-v/maxV);
+      i?c.lineTo(x,y):c.moveTo(x,y);
+    });
+    c.stroke();
+    c.fillStyle=s.color;
+    s.values.forEach((v,i)=>{
+      const x=pad.l+(W-pad.l-pad.r)*(n===1?0.5:i/(n-1));
+      const y=pad.t+(H-pad.t-pad.b)*(1-v/maxV);
+      c.beginPath();c.arc(x,y,6,0,7);c.fill();
+    });
+  });
+  c.fillStyle=css.getPropertyValue('--muted');c.textAlign='center';
+  (labels||[]).forEach((l,i)=>{
+    const x=pad.l+(W-pad.l-pad.r)*(n===1?0.5:i/(n-1));
+    c.fillText(l,x,H-14);
+  });
+}
+function gauge(pct,label){
+  const tone=pct>85?'var(--bad)':pct>65?'var(--warn)':'var(--ok)';
+  return `<div style="margin-top:6px"><div style="height:8px;background:var(--chip);border-radius:6px;overflow:hidden">
+    <div style="height:100%;width:${Math.min(100,pct)}%;background:${tone}"></div></div>
+    <div class="small muted" style="margin-top:3px">${label}</div></div>`;
+}
+function pager(total,page,per,go){
+  const pages=Math.max(1,Math.ceil(total/per));
+  return `<div class="pager"><button ${page<=0?'disabled':''} onclick="${go}(${page-1})">‹ Prev</button>
+    <span class="muted small">page ${page+1} / ${pages} · ${total} rows</span>
+    <button ${page>=pages-1?'disabled':''} onclick="${go}(${page+1})">Next ›</button></div>`;
+}
+
+/* ══ Navigation ════════════════════════════════════════════════════════ */
+// Ordered as an AI-operations workflow: observe → curate data → improve →
+// measure → ship → operate.
+const MODULES=[
+ ['overview','📊 Dashboard'],
+ ['datasets','🗂 Datasets'],
+ ['knowledge','🌐 Knowledge Base'],
+ ['review','✅ Conversation Review'],
+ ['synthetic','✨ Synthetic Generator'],
+ ['memory','🧠 AI Memory Builder'],
+ ['prompt','⚖️ Prompt Lab'],
+ ['finetune','🔧 Model Training'],
+ ['eval','🧪 Evaluation'],
+ ['autopilot','🛰 Autopilot'],
+ ['experiments','🔬 Experiment Lab'],
+ ['registry','📦 Model Registry'],
+ ['deployments','🚀 Deployment'],
+ ['security','🛡 Security'],
+];
+let current='overview';
+$('#nav')||document.addEventListener('DOMContentLoaded',()=>{});
+function nav(){
+  $('#nav').innerHTML=MODULES.map(([id,label])=>
+    `<button class="${id===current?'active':''}" onclick="go('${id}')">${label}</button>`).join('');
+}
+function go(id){current=id;nav();render();}
+function render(){$('#title').textContent=MODULES.find(m=>m[0]===current)[1].slice(2);VIEWS[current]();}
+
+/* ══ Dashboard — EVA operations overview (Update 59) ═══════════════════ */
+async function viewOverview(){
+  $('#view').innerHTML='<p class="muted">Loading system state…</p>';
+  const [sys,o,h]=await Promise.all([
+    api('/admin-api/training/system'),
+    api('/admin-api/training/overview'),
+    fetch('/api/health/full').then(r=>r.json()),
+  ]);
+  const c=sys.counts||{},q=sys.quality||{},rt=sys.runtime||{},fw=h.outbound_firewall||{},cand=o.candidates||{};
+  const DOT={up:'🟢',down:'🔴',absent:'⚫',unknown:'🟡'};
+  const metric=(k,v,s)=>`<div class="card"><div class="k">${k}</div><div class="v">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`;
+  $('#view').innerHTML=`
+  <div class="panel"><h3>EVA Overview</h3>
+   <div class="row">
+    ${sys.components.map(x=>`<span class="tag" style="padding:7px 12px">${DOT[x.status]||'🟡'} <b>${esc(x.name)}</b> <span class="muted small">${esc(x.detail||'')}</span></span>`).join(' ')}
+   </div></div>
+
+  <div class="cards">
+   ${metric('Documents',c.documents??'—','indexed in the knowledge base')}
+   ${metric('Embeddings',(c.embeddings??0).toLocaleString(),'pgvector chunks')}
+   ${metric('Datasets',c.datasets??'—',(c.dataset_rows??0).toLocaleString()+' rows')}
+   ${metric('Conversations',c.conversations??'—','stored chat history')}
+   ${metric('Training candidates',c.candidates??0,(c.candidates_pending??0)+' awaiting review')}
+   ${metric('Training jobs',c.training_jobs??'—',(c.training_jobs_running??0)+' active')}
+   ${metric('Model versions',c.model_versions??'—',c.active_config?'v'+c.active_config+' live':'code defaults')}
+   ${metric('User feedback',c.feedback??0,'👍 '+(o.feedback?.up??0)+' · 👎 '+(o.feedback?.down??0))}
+  </div>
+
+  <div class="cards">
+   ${metric('Average accuracy',q.accuracy!=null?Math.round(q.accuracy*100)+'%':'—','last evaluation')}
+   ${metric('Average latency',q.avg_latency_ms!=null?q.avg_latency_ms+'ms':'—','last evaluation')}
+   ${metric('Hallucination rate',q.hallucination_rate!=null?Math.round(q.hallucination_rate*100)+'%':'—','last evaluation')}
+   ${metric('Citation accuracy',q.citation_accuracy!=null?Math.round(q.citation_accuracy*100)+'%':'—','last evaluation')}
+   ${metric('Outbound firewall',fw.inspected??'—',(fw.would_block??0)+' flagged · '+(fw.enforcing?'enforcing':'shadow'))}
+   ${metric('Queries logged',sys.analytics?.total_chats??0,'analytics store')}
+   ${metric('Tokens used',(sys.analytics?.tokens_used??0).toLocaleString(),'analytics store')}
+   ${metric('Deployment',esc((h.backend_commit||'').slice(0,7)||'—'),'backend commit')}
+  </div>
+
+  <div class="panel"><h3>LLM providers</h3><div id="provStatus" class="muted small">Loading…</div></div>
+
+  <div class="panel"><h3>Host resources</h3>
+   ${rt.unavailable?`<p class="muted small">${esc(rt.unavailable)}</p>`:`
+   <div class="cards">
+    <div class="card"><div class="k">CPU</div><div class="v">${rt.cpu_percent}%</div>${gauge(rt.cpu_percent,'backend instance')}</div>
+    <div class="card"><div class="k">Memory</div><div class="v">${rt.memory_percent}%</div>${gauge(rt.memory_percent,rt.memory_used_mb+' / '+rt.memory_total_mb+' MB')}</div>
+    <div class="card"><div class="k">Disk</div><div class="v">${rt.disk_percent}%</div>${gauge(rt.disk_percent,rt.disk_free_gb+' GB free')}</div>
+    <div class="card"><div class="k">GPU</div><div class="v">—</div><div class="s">${esc(rt.gpu?.detail||'none')}</div></div>
+   </div>`}
+   <div class="note">GPU is reported as absent rather than 0%: this stack has none, which is why LoRA training runs off-platform via generated scripts.</div>
+  </div>
+
+  <div class="panel"><h3>Dataset growth (rows per dataset, live)</h3><canvas id="growth"></canvas></div>`;
+  if(o.dataset_center?.reachable&&o.dataset_center.growth.length){
+    const g=o.dataset_center.growth;barChart($('#growth'),g.map(x=>x.id),g.map(x=>x.rows));
+  }
+  drawProviders();
+}
+async function drawProviders(){
+  if(!MLURL){try{const r=await api('/admin-api/training/registry');MLURL=r.ml_service;}catch(e){return;}}
+  let d;
+  try{d=await fetch(MLURL+'/rag/providers').then(r=>r.json());}
+  catch(e){$('#provStatus').textContent='Provider status unavailable (ML service unreachable).';return;}
+  const DOT={healthy:'🟢',rate_limited:'🟡',error:'🔴',no_key:'⚫'};
+  const LABEL={healthy:'Healthy',rate_limited:'Rate limited',error:'Error',no_key:'API key missing'};
+  $('#provStatus').innerHTML=`
+   <table><tr><th>Provider</th><th>Status</th><th>Model</th><th>Requests</th><th>Failures</th><th>Last error</th></tr>
+   ${d.providers.map(p=>`<tr>
+     <td><b>${esc(p.label)}</b></td>
+     <td>${DOT[p.status]||'🟡'} ${LABEL[p.status]||esc(p.status)}${p.status==='no_key'?'':''}</td>
+     <td class="mono">${esc(p.model)}</td>
+     <td>${p.requests}</td><td>${p.failures}</td>
+     <td class="small muted">${p.last_error_code?esc(p.last_error_code)+(p.last_error_seconds_ago!=null?` · ${p.last_error_seconds_ago}s ago`:''):'—'}</td>
+   </tr>`).join('')}</table>
+   <div class="note">Failover order: ${d.preferred_order.map(x=>esc(x)).join(' → ')}. A request tries the routed provider first, then every other configured provider; users never see provider errors, only a neutral retry message. Rate-limited status clears automatically 10 minutes after the last failure, or on the next success.</div>`;
+}
+
+/* ══ Dataset Manager ═══════════════════════════════════════════════════ */
+let dsCache=[],dsQuery='',dsPage=0;const DS_PER=8;
+async function viewDatasets(){
+  $('#view').innerHTML='<p class="muted">Loading…</p>';
+  const reg=await api('/admin-api/training/registry');MLURL=reg.ml_service;
+  const d=await fetch(MLURL+'/datasets').then(r=>r.json());
+  dsCache=d.datasets||[];dsPage=0;drawDatasets();
+}
+let dsTypeFilter='';
+function drawDatasets(page=0){
+  dsPage=page;
+  const q=dsQuery.toLowerCase();
+  const rows=dsCache.filter(x=>(!q||x.id.includes(q)||(x.name||'').toLowerCase().includes(q))
+    &&(!dsTypeFilter||(x.source_types||[]).includes(dsTypeFilter)||(x.formats||[]).includes(dsTypeFilter)));
+  const slice=rows.slice(page*DS_PER,(page+1)*DS_PER);
+  $('#view').innerHTML=`
+  <div class="panel"><h3>Create dataset (upload)</h3>
+    <div class="row"><input type="file" id="dsFile" class="grow" accept=".csv,.json,.jsonl,.txt,.md,.pdf,.docx">
+    <input id="dsName" placeholder="dataset name (optional)" style="width:200px">
+    <button class="primary" onclick="uploadDataset()">Upload</button></div>
+    <p class="muted small">CSV · JSON · JSONL · TXT · MD · PDF · DOCX — documents are chunked to {text} rows. 15MB cap.</p></div>
+  <div class="panel"><h3>Merge datasets</h3>
+    <div class="row"><input id="mergeSrc" class="grow" placeholder='sources e.g. u52-qa-sample:1, rotten-tomatoes-sample:1'>
+    <input id="mergeName" placeholder="new name" style="width:200px">
+    <button onclick="mergeDatasets()">Merge</button></div></div>
+  <div class="panel"><h3>Datasets (durable · Supabase)</h3>
+    <div class="row" style="margin-bottom:8px"><input class="grow" placeholder="Search datasets…" value="${esc(dsQuery)}" oninput="dsQuery=this.value;drawDatasets(0)"></div>
+    <div class="row" style="margin-bottom:8px">
+      ${['','upload','huggingface','url','merge','learning-loop','csv','pdf','chat-sft-jsonl'].map(t=>
+        `<button class="${dsTypeFilter===t?'primary':''}" onclick="dsTypeFilter='${t}';drawDatasets(0)">${t||'All'}</button>`).join('')}
+    </div>
+    <table><tr><th>ID</th><th>Name</th><th>Type</th><th>Versions</th><th>Rows</th><th>Updated</th><th></th></tr>
+    ${slice.map(x=>`<tr><td class="mono">${esc(x.id)}</td><td>${esc(x.name)}</td>
+      <td>${(x.source_types||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join(' ')||'<span class="muted small">—</span>'}</td>
+      <td>${x.versions}</td><td>${x.total_rows}</td><td class="small muted">${esc(x.updated_at||'')}</td>
+      <td class="row"><button onclick="dsDetail('${esc(x.id)}')">Open</button><button class="danger" onclick="dsDelete('${esc(x.id)}')">Delete</button></td></tr>`).join('')||'<tr><td colspan="7" class="muted">No datasets</td></tr>'}
+    </table>${pager(rows.length,page,DS_PER,'drawDatasets')}
+    <div id="dsDetail"></div></div>`;
+}
+async function uploadDataset(){
+  const f=$('#dsFile').files[0];if(!f)return toast('Choose a file');
+  const fd=new FormData();fd.append('file',f);if($('#dsName').value)fd.append('name',$('#dsName').value);
+  const h={};if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/datasets/upload',{method:'POST',body:fd,headers:h});
+  const d=await r.json();
+  if(r.ok){toast(`Stored ${d.dataset_id} v${d.version} (${d.stats.row_count} rows)`);viewDatasets();}
+  else toast('Upload failed: '+(d.detail||r.status));
+}
+async function mergeDatasets(){
+  const srcs=$('#mergeSrc').value.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const [id,v]=s.split(':');return{dataset_id:id.trim(),version:parseInt(v)}});
+  if(!srcs.length||!$('#mergeName').value)return toast('Sources and name required');
+  const h={'Content-Type':'application/json'};if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/datasets/merge',{method:'POST',headers:h,body:JSON.stringify({sources:srcs,name:$('#mergeName').value})});
+  const d=await r.json();
+  if(r.ok){toast(`Merged into ${d.dataset_id} v${d.version} (${d.stats.row_count} rows)`);viewDatasets();}
+  else toast('Merge failed: '+(d.detail||r.status));
+}
+async function dsDelete(id){
+  if(!confirm(`Delete dataset "${id}" and ALL its versions?`))return;
+  const h={};if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/datasets/'+id,{method:'DELETE',headers:h});
+  if(r.ok){toast('Deleted '+id);viewDatasets();}else toast('Delete failed '+r.status);
+}
+async function dsDetail(id){
+  const d=await fetch(MLURL+'/datasets/'+id).then(r=>r.json());
+  const h={};if(key())h['X-Train-Key']=key();
+  const latest=d.versions[0];
+  let preview={rows:[]};
+  if(latest)preview=await fetch(`${MLURL}/datasets/${id}/versions/${latest.version}/preview?limit=3`,{headers:h}).then(r=>r.ok?r.json():{rows:[]});
+  $('#dsDetail').innerHTML=`<h3 style="margin:14px 0 8px">${esc(d.name)} — version history</h3>
+  <table><tr><th>v</th><th>Created</th><th>Source</th><th>Rows</th><th>~Tokens</th><th>sha256</th><th></th></tr>
+  ${d.versions.map(v=>`<tr><td>${v.version}</td><td class="small muted">${esc(v.created_at)}</td>
+   <td><span class="tag">${esc(v.source_type)}</span> <span class="small muted">${esc(v.source_ref||'')}</span></td>
+   <td>${v.row_count}</td><td>${v.approx_tokens}</td><td class="mono">${esc(v.sha256.slice(0,10))}…</td>
+   <td><a href="${MLURL}/datasets/${esc(d.id)}/versions/${v.version}/export" target="_blank">Export JSONL</a></td></tr>`).join('')}
+  </table>
+  <h3 style="margin:14px 0 8px">Preview (latest)</h3>
+  <pre class="ans">${esc(JSON.stringify(preview.rows,null,1))}</pre>`;
+}
+
+/* ══ Conversation Review ═══════════════════════════════════════════════ */
+let rvStatus='PENDING',rvPage=0;const RV_PER=10;
+async function viewReview(page=0){
+  rvPage=page;
+  const d=await api(`/train/candidates?status=${rvStatus}&limit=${RV_PER}&offset=${page*RV_PER}`);
+  $('#view').innerHTML=`
+  <div class="panel"><div class="row" style="margin-bottom:10px">
+    ${['PENDING','APPROVED','REJECTED','NEEDS_IMPROVEMENT'].map(s=>`<button class="${s===rvStatus?'primary':''}" onclick="rvStatus='${s}';viewReview(0)">${s}</button>`).join('')}
+    <span class="muted small">Then build datasets from the <b>Continuous Learning</b> API (/train/dataset/build) or approve here and build via Overview.</span></div>
+  <table><tr><th>When</th><th>Question / Answer</th><th>Provider</th><th>Actions</th></tr>
+  ${d.candidates.map(c=>`<tr>
+    <td class="small muted">${esc(c.created_at)}<br><span class="mono">${esc(c.user_ref)}</span></td>
+    <td><div class="clip"><b>${esc(c.question)}</b></div><div class="clip muted">${esc(c.answer)}</div></td>
+    <td><span class="tag">${esc(c.provider||'—')}</span></td>
+    <td><div class="row">
+      <button class="ok" onclick="rvAct('${c.id}','approve')">Approve</button>
+      <button class="danger" onclick="rvAct('${c.id}','reject')">Reject</button>
+      <button class="warn" onclick="rvAct('${c.id}','needs-improvement')">Needs work</button>
+      <button onclick="rvCorrect('${c.id}',this)">Correct answer</button>
+      </div><div id="cor-${c.id}"></div></td></tr>`).join('')||'<tr><td colspan="4" class="muted">Nothing here</td></tr>'}
+  </table>${pager(d.total,page,RV_PER,'viewReview')}
+  <div class="note">Approving adds to the build pool ("Add to dataset" = approve → /train/dataset/build pushes durably to the Dataset Center).</div></div>`;
+}
+async function rvAct(id,action){await api(`/train/candidates/${id}/${action}`,{method:'POST',body:'{}'});toast(action+' ✓');viewReview(rvPage);}
+function rvCorrect(id){
+  $('#cor-'+id).innerHTML=`<textarea id="corTxt-${id}" placeholder="Corrected answer…"></textarea>
+   <button class="primary" style="margin-top:6px" onclick="rvCorrectSend('${id}')">Save corrected & approve</button>`;
+}
+async function rvCorrectSend(id){
+  const t=$('#corTxt-'+id).value.trim();if(t.length<5)return toast('Answer too short');
+  await api(`/train/candidates/${id}/correct`,{method:'POST',body:JSON.stringify({answer:t})});
+  toast('Corrected & approved ✓');viewReview(rvPage);
+}
+
+/* ══ Prompt Testing ════════════════════════════════════════════════════ */
+async function viewPrompt(){
+  const p=await api('/admin-api/training/providers');
+  $('#view').innerHTML=`
+  <div class="panel"><h3>Run a prompt across models</h3>
+   <textarea id="ptPrompt" placeholder="Enter the prompt to compare…"></textarea>
+   <div class="row" style="margin:10px 0">${p.providers.map(x=>
+     `<label class="tag" style="padding:6px 10px"><input type="checkbox" ${x.available?'checked':'disabled'} value="${x.id}" class="ptProv"> ${esc(x.label)}${x.available?'':' — '+esc(x.reason||'no key')}</label>`).join('')}
+   </div>
+   <button class="primary" id="ptRun" onclick="runPrompt()">Run comparison</button></div>
+  <div id="ptResults"></div>
+  <div class="panel"><h3>History</h3><div id="ptHistory" class="muted">Loading…</div></div>`;
+  ptHistory();
+}
+async function runPrompt(){
+  const prompt=$('#ptPrompt').value.trim();if(!prompt)return toast('Enter a prompt');
+  const provs=[...document.querySelectorAll('.ptProv:checked')].map(x=>x.value);
+  $('#ptRun').disabled=true;$('#ptRun').textContent='Running…';
+  try{
+    const d=await api('/admin-api/training/prompt-test',{method:'POST',body:JSON.stringify({prompt,providers:provs})});
+    $('#ptResults').innerHTML=d.results.filter(r=>!r.skipped).map(r=>`
+      <div class="panel"><div class="row" style="justify-content:space-between"><h3>${esc(r.label)}</h3>
+      <span class="tag ${r.error?'bad':'ok'}">${r.error?'error':r.latency_ms+' ms · '+r.chars+' chars'}</span></div>
+      <pre class="ans">${esc(r.error||r.answer)}</pre></div>`).join('');
+    ptHistory();
+  }finally{$('#ptRun').disabled=false;$('#ptRun').textContent='Run comparison';}
+}
+async function ptHistory(){
+  const d=await api('/admin-api/training/prompt-tests?limit=10');
+  $('#ptHistory').innerHTML=`<table><tr><th>When</th><th>Prompt</th><th>Results</th></tr>
+   ${d.tests.map(t=>`<tr><td class="small muted">${esc(t.created_at)}</td><td class="clip">${esc(t.prompt)}</td>
+    <td>${t.results.filter(r=>!r.skipped).map(r=>`<span class="tag ${r.error?'bad':''}">${esc(r.id)} ${r.error?'✗':r.latency_ms+'ms'}</span>`).join(' ')}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">None yet</td></tr>'}</table>`;
+}
+
+/* ══ Evaluation ════════════════════════════════════════════════════════ */
+async function viewEval(){
+  const d=await api('/admin-api/training/evaluations');
+  $('#view').innerHTML=`
+  <div class="panel"><div class="row" style="justify-content:space-between">
+    <div><h3>Benchmark: core suite</h3><p class="muted small">8 golden questions (math · coding · reasoning · mechanical/RAG) replayed against the LIVE /chat endpoint. Vision joins once an image harness exists.</p></div>
+    <button class="primary" onclick="runEval()">Run evaluation</button></div></div>
+  <div class="panel"><h3>Quality trend (oldest → newest)</h3>
+   <canvas id="evTrend"></canvas>
+   <div class="row" style="margin-top:6px">
+    <span class="tag" style="color:var(--ok)">● Accuracy</span>
+    <span class="tag" style="color:var(--bad)">● Hallucination</span>
+    <span class="tag" style="color:var(--accent2)">● Citation</span>
+   </div>
+   <div id="evTrendNote"></div></div>
+  <div class="panel"><h3>Latency trend (ms)</h3><canvas id="evLatency"></canvas></div>
+  <div class="panel"><h3>Runs</h3><table><tr><th>When</th><th>Status</th><th>Accuracy</th><th>Halluc.</th><th>Citation</th><th>Latency</th><th></th></tr>
+   ${d.runs.map(r=>{const s=r.summary||{};return `<tr><td class="small muted">${esc(r.created_at)}</td>
+    <td><span class="tag ${r.status==='DONE'?'ok':'warn'}">${r.status}</span></td>
+    <td>${s.accuracy!=null?Math.round(s.accuracy*100)+'%':'—'}</td>
+    <td>${s.hallucination_rate!=null?Math.round(s.hallucination_rate*100)+'%':'—'}</td>
+    <td>${s.citation_accuracy!=null?Math.round(s.citation_accuracy*100)+'%':'—'}</td>
+    <td>${s.avg_latency_ms!=null?s.avg_latency_ms+'ms':'—'}</td>
+    <td><button onclick="evalDetail('${r.id}')">Detail</button></td></tr>`}).join('')||'<tr><td colspan="7" class="muted">No runs yet</td></tr>'}
+  </table></div><div id="evalDetail"></div>`;
+  // Trend across finished runs, oldest first.
+  const done=d.runs.filter(r=>r.status==='DONE'&&r.summary).reverse();
+  if(done.length){
+    const labels=done.map(r=>(r.created_at||'').slice(5,16).replace('T',' '));
+    const css=getComputedStyle(document.documentElement);
+    lineChart($('#evTrend'),[
+      {name:'accuracy',values:done.map(r=>r.summary.accuracy??0),color:css.getPropertyValue('--ok')},
+      {name:'hallucination',values:done.map(r=>r.summary.hallucination_rate??0),color:css.getPropertyValue('--bad')},
+      {name:'citation',values:done.map(r=>r.summary.citation_accuracy??0),color:css.getPropertyValue('--accent2')},
+    ],labels);
+    lineChart($('#evLatency'),[
+      {name:'latency',values:done.map(r=>r.summary.avg_latency_ms??0),color:css.getPropertyValue('--accent')},
+    ],labels);
+    const dips=done.filter(r=>(r.summary.accuracy??1)<0.6&&(r.summary.citation_accuracy??0)>=0.9).length;
+    if(dips)$('#evTrendNote').innerHTML=`<div class="note">${dips} run(s) show low accuracy with intact citation accuracy — that shape is usually <b>provider quota exhaustion (429)</b>, not a retrieval regression. Check <span class="mono">answer_preview</span> in the run detail before treating it as one.</div>`;
+  }else{
+    $('#evTrendNote').innerHTML='<p class="muted small">No finished runs yet.</p>';
+  }
+}
+async function runEval(){
+  const d=await api('/admin-api/training/evaluate',{method:'POST',body:'{}'});
+  toast(`Run ${d.id} started (${d.questions} questions)…`);
+  const poll=setInterval(async()=>{
+    const r=await api('/admin-api/training/evaluations/'+d.id);
+    if(r.status==='DONE'){clearInterval(poll);toast('Evaluation done');viewEval();}
+  },5000);
+}
+async function evalDetail(id){
+  const r=await api('/admin-api/training/evaluations/'+id);
+  const s=r.summary||{},cats=s.by_category||{};
+  $('#evalDetail').innerHTML=`<div class="panel"><h3>Run ${esc(id)} — per category</h3>
+   <canvas id="evCat"></canvas>
+   <table style="margin-top:10px"><tr><th>Category</th><th>Question</th><th>Correct</th><th>Halluc.</th><th>Sources</th><th>Latency</th><th>Answer preview</th></tr>
+   ${(r.items||[]).map(i=>`<tr><td><span class="tag">${esc(i.category)}</span></td><td class="clip">${esc(i.question)}</td>
+    <td>${i.ok?(i.correct?'✅':'❌'):'⚠️ '+esc(i.error||'')}</td><td>${i.hallucination?'⚠️':'—'}</td>
+    <td>${i.rag?i.sources:'n/a'}</td><td>${i.latency_ms}ms</td><td class="clip small muted">${esc(i.answer_preview||'')}</td></tr>`).join('')}
+   </table></div>`;
+  const labels=Object.keys(cats);
+  if(labels.length)barChart($('#evCat'),labels,labels.map(k=>cats[k].correct));
+}
+
+/* ══ Synthetic Generator ═══════════════════════════════════════════════ */
+function viewSynthetic(){
+  $('#view').innerHTML=`
+  <div class="panel"><h3>Generate training pairs</h3>
+   <div class="row" style="margin-bottom:8px">
+    <select id="synMode" style="width:170px" onchange="$('#synDs').style.display=this.value==='dataset'?'flex':'none'">
+     <option value="manual">From manual prompt</option><option value="dataset">From dataset version</option></select>
+    <input id="synCount" type="number" value="5" min="1" max="10" style="width:80px">
+   </div>
+   <div class="row" id="synDs" style="display:none;margin-bottom:8px">
+    <input id="synDsId" placeholder="dataset_id" style="width:220px"><input id="synDsV" type="number" placeholder="version" style="width:100px"></div>
+   <textarea id="synPrompt" placeholder="Topic / source material (manual mode) — e.g. 'Fundamentals of sheet metal bending: die types, springback, k-factor'"></textarea>
+   <button class="primary" style="margin-top:8px" id="synRun" onclick="runSynthetic()">Generate</button>
+   <div class="note">Generated pairs enter <b>Conversation Review as PENDING</b> — nothing reaches a dataset without human approval.</div>
+  </div><div id="synOut"></div>`;
+}
+async function runSynthetic(){
+  const mode=$('#synMode').value;
+  const body={mode,count:parseInt($('#synCount').value)||5};
+  if(mode==='manual')body.prompt=$('#synPrompt').value;
+  else{body.dataset_id=$('#synDsId').value;body.version=parseInt($('#synDsV').value);}
+  $('#synRun').disabled=true;
+  try{
+    const d=await api('/admin-api/training/synthetic',{method:'POST',body:JSON.stringify(body)});
+    $('#synOut').innerHTML=`<div class="panel"><h3>Result</h3><p>Created <b>${d.created}</b> PENDING candidates (${d.skipped} skipped) from <span class="tag">${esc(d.source)}</span>.</p>
+     <button onclick="go('review')">Open Conversation Review →</button></div>`;
+  }finally{$('#synRun').disabled=false;}
+}
+
+/* ══ Fine-Tuning: Training Jobs (Update 55) ════════════════════════════ */
+async function tjFetch(path,opts={}){
+  const h={'Content-Type':'application/json',...(opts.headers||{})};
+  if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/train-jobs'+path,{...opts,headers:h});
+  if(!r.ok){let d='';try{d=(await r.json()).detail||''}catch(e){};toast(`Jobs ${r.status} ${d}`);throw new Error(r.status);}
+  return r.json();
+}
+async function viewFinetune(){
+  if(!MLURL){const reg=await api('/admin-api/training/registry');MLURL=reg.ml_service;}
+  const jobs=(await tjFetch('')).jobs;
+  $('#view').innerHTML=`
+  <div class="panel"><h3>New training job</h3>
+   <div class="row" style="margin-bottom:8px">
+    <select id="tjKind" style="width:270px" onchange="$('#tjGpu').style.display=this.value==='gpu-lora-sft'?'flex':'none'">
+      <option value="cpu-embedder">cpu-embedder — retrieval embedder fine-tune (runs on the Space now)</option>
+      <option value="gpu-lora-sft">gpu-lora-sft — generate pinned QLoRA/PEFT script (run on Colab/Kaggle GPU)</option>
+    </select>
+    <input id="tjDs" placeholder="dataset_id (e.g. eva-conversations)" style="width:230px">
+    <input id="tjV" type="number" placeholder="version" style="width:90px">
+    <input id="tjEpochs" type="number" value="1" min="1" max="5" style="width:90px" title="epochs">
+   </div>
+   <div class="row" id="tjGpu" style="display:none;margin-bottom:8px">
+    <select id="tjBase" style="width:180px"><option value="qwen">Qwen2.5-1.5B</option><option value="llama">Llama-3.2-1B (gated)</option><option value="mistral">Mistral-7B</option><option value="deepseek">DeepSeek-R1-1.5B</option></select>
+    <input id="tjLr" value="0.0002" style="width:110px" title="learning rate">
+    <input id="tjBatch" type="number" value="4" style="width:80px" title="batch size">
+    <input id="tjLoraR" type="number" value="16" style="width:80px" title="LoRA r">
+   </div>
+   <button class="primary" onclick="tjCreate()">Create job</button>
+   <div class="note">cpu-embedder trains a <b>fresh copy</b> of the embedder — the live retrieval model is never hot-swapped (that would invalidate every stored embedding). gpu-lora-sft produces a complete pinned script with QLoRA, mixed precision, gradient checkpointing and per-epoch checkpoints; it reports metrics back here on completion. No GPU exists on this stack, so there are deliberately no start/pause buttons for GPU runs.</div></div>
+  <div class="panel"><div class="row" style="justify-content:space-between"><h3>Jobs</h3>
+    <div class="row"><label class="small muted"><input type="checkbox" id="tjAuto" ${window._tjAuto?'checked':''} onchange="tjAutoToggle(this.checked)"> auto-refresh</label>
+    <button onclick="viewFinetune()">↻ Refresh</button></div></div>
+   <table><tr><th>ID</th><th>Kind</th><th>Dataset</th><th>Status</th><th>Epoch</th><th>Loss</th><th>Accuracy</th><th>ETA</th><th></th></tr>
+   ${jobs.map(j=>{
+     const m=j.metrics||{},h=m.history||[],last=h[h.length-1]||{};
+     const acc=m.avg_pair_cosine_after??last.pair_cosine;
+     const eta=m.eta_seconds!=null?(m.eta_seconds>90?Math.round(m.eta_seconds/60)+'m':Math.round(m.eta_seconds)+'s'):'—';
+     const running=['RUNNING','CREATED'].includes(j.status);
+     return `<tr><td class="mono">${esc(j.id)}</td><td><span class="tag">${esc(j.kind)}</span></td>
+    <td class="small">${esc(j.dataset_id)} v${j.dataset_version}</td>
+    <td><span class="tag ${j.status==='COMPLETED'?'ok':(j.status==='FAILED'?'bad':(j.status==='CANCELLED'?'':'warn'))}">${esc(j.status)}</span>${running?' '+j.progress+'%':''}</td>
+    <td>${(()=>{const tot=m.epochs_total??m.epochs;if(!tot)return '—';
+      // Finished jobs carry epochs/epochs_done; in-flight jobs carry
+      // epochs_total/epochs_done. Completed runs default done to total.
+      const done=m.epochs_done??(j.status==='COMPLETED'?tot:0);return `${done}/${tot}`;})()}</td>
+    <td>${last.loss!=null?last.loss:(m.train_loss??m.final_loss??'—')}</td>
+    <td>${acc!=null?Number(acc).toFixed(4):'—'}</td>
+    <td>${running?eta:'—'}</td>
+    <td><div class="row">
+      ${h.length>1?`<button onclick="tjCurve('${esc(j.id)}')">Curve</button>`:''}
+      ${running&&j.kind==='cpu-embedder'?`<button class="danger" onclick="tjCancel('${esc(j.id)}')">Stop</button>`:''}
+      ${j.kind==='gpu-lora-sft'?`<a href="${MLURL}/train-jobs/${esc(j.id)}/script" target="_blank">Script</a>`:''}
+    </div>${j.error?`<div class="small bad">${esc(j.error)}</div>`:''}</td></tr>`}).join('')||'<tr><td colspan="9" class="muted">No jobs yet</td></tr>'}
+   </table>
+   <div class="note">Stop is cooperative: a running epoch finishes first (a backward pass cannot be safely interrupted), then the job finalizes as CANCELLED and the partially-trained model is not published. GPU jobs run on your own host — stop them there.</div>
+   <div id="tjCurveOut"></div></div>`;
+  if(window._tjAuto&&jobs.some(j=>['RUNNING','CREATED'].includes(j.status)))
+    window._tjTimer=setTimeout(viewFinetune,5000);
+}
+function tjAutoToggle(on){
+  window._tjAuto=on;
+  clearTimeout(window._tjTimer);
+  if(on)viewFinetune();
+}
+async function tjCancel(id){
+  if(!confirm('Stop this training job at the next epoch boundary?'))return;
+  const d=await tjFetch(`/${id}/cancel`,{method:'POST',body:'{}'});
+  toast(d.detail||'Cancelling…');viewFinetune();
+}
+async function tjCurve(id){
+  const j=await tjFetch('/'+id);
+  const h=(j.metrics||{}).history||[];
+  if(h.length<2)return toast('No epoch history');
+  const css=getComputedStyle(document.documentElement);
+  $('#tjCurveOut').innerHTML=`<h3 style="margin:14px 0 8px">Job ${esc(id)} — training curve</h3>
+   <div class="row"><span class="tag" style="color:var(--bad)">● Loss</span><span class="tag" style="color:var(--ok)">● Pair cosine</span></div>
+   <canvas id="tjLoss"></canvas>
+   <table style="margin-top:10px"><tr><th>Epoch</th><th>Loss</th><th>Pair cosine</th><th>Seconds</th></tr>
+   ${h.map(e=>`<tr><td>${e.epoch}</td><td>${e.loss}</td><td>${e.pair_cosine}</td><td>${e.seconds}</td></tr>`).join('')}</table>`;
+  lineChart($('#tjLoss'),[
+    {name:'loss',values:h.map(e=>e.loss),color:css.getPropertyValue('--bad')},
+    {name:'cosine',values:h.map(e=>e.pair_cosine),color:css.getPropertyValue('--ok')},
+  ],h.map(e=>'ep '+e.epoch));
+}
+async function tjCreate(){
+  const kind=$('#tjKind').value;
+  const body={kind,dataset_id:$('#tjDs').value.trim(),dataset_version:parseInt($('#tjV').value),
+    config:{epochs:parseInt($('#tjEpochs').value)||1}};
+  if(!body.dataset_id||!body.dataset_version)return toast('dataset_id and version required');
+  if(kind==='gpu-lora-sft')Object.assign(body.config,{base_model:$('#tjBase').value,
+    learning_rate:parseFloat($('#tjLr').value),batch_size:parseInt($('#tjBatch').value),lora_r:parseInt($('#tjLoraR').value)});
+  const d=await tjFetch('',{method:'POST',body:JSON.stringify(body)});
+  toast(`Job ${d.id} ${d.status}`);viewFinetune();
+}
+
+/* ══ Model Registry (Update 54: versioned deploy/rollback) ═════════════ */
+async function regFetch(path,opts={}){
+  const h={'Content-Type':'application/json',...(opts.headers||{})};
+  if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/registry'+path,{...opts,headers:h});
+  if(!r.ok){let d='';try{d=(await r.json()).detail||''}catch(e){};toast(`Registry ${r.status} ${d}`);throw new Error(r.status);}
+  return r.json();
+}
+async function viewRegistry(){
+  const r=await api('/admin-api/training/registry');MLURL=r.ml_service;
+  const reg=await regFetch('');
+  const lastMetric=v=>{const m=(v.metrics||[]);return m.length?m[m.length-1].summary:null};
+  $('#view').innerHTML=`
+  <div class="cards">
+   <div class="card"><div class="k">Active config</div><div class="v">${reg.active_version?'v'+reg.active_version:'code defaults'}</div><div class="s">routing configuration</div></div>
+   ${Object.entries(r.chat_providers).map(([k,v])=>`<div class="card"><div class="k">${esc(k)}</div><div class="v">${v?'🟢':'⚫'}</div><div class="s">${v?'key configured':'no key'}</div></div>`).join('')}
+   <div class="card"><div class="k">Embedder</div><div class="v" style="font-size:13px">${esc(r.embed_model)}</div><div class="s">never hot-swapped (re-embed required)</div></div>
+  </div>
+  <div class="panel"><h3>Effective routing (live)</h3>
+   <table><tr><th>Intent</th><th>Provider</th><th>Model</th><th>Fallback</th></tr>
+   ${Object.entries(reg.effective_routes).map(([i,x])=>`<tr><td><span class="tag">${esc(i)}</span></td><td>${esc(x.provider)}</td><td class="mono">${esc(x.model)}</td><td class="muted">${esc(x.fallback||'')}</td></tr>`).join('')}</table></div>
+  <div class="panel"><h3>Version history</h3>
+   <div class="row" style="margin-bottom:8px"><button onclick="regRollback()" class="warn">⟲ Rollback to previous</button></div>
+   <table><tr><th>v</th><th>Status</th><th>Created</th><th>Activated</th><th>Notes</th><th>Last eval on this config</th><th></th></tr>
+   ${reg.versions.map(v=>{const m=lastMetric(v);return `<tr><td><b>v${v.version}</b></td>
+    <td><span class="tag ${v.status==='ACTIVE'?'ok':v.status==='DRAFT'?'warn':''}">${v.status}</span></td>
+    <td class="small muted">${esc(v.created_at)}</td><td class="small muted">${esc(v.activated_at||'—')}</td>
+    <td class="clip small">${esc(v.notes||'')}</td>
+    <td class="small">${m?`acc ${Math.round(m.accuracy*100)}% · halluc ${Math.round(m.hallucination_rate*100)}% · ${m.avg_latency_ms}ms`:'—'}</td>
+    <td>${v.status!=='ACTIVE'?`<button class="ok" onclick="regDeploy(${v.version})">Deploy</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="7" class="muted">No versions — traffic runs on code defaults</td></tr>'}
+   </table></div>
+  <div class="panel"><h3>Create draft version</h3>
+   <p class="muted small">Edit the routing JSON (providers: groq | gemini) and save as a new draft, then deploy it.</p>
+   <textarea id="regCfg" style="min-height:160px" class="mono">${esc(JSON.stringify({routes:reg.effective_routes},null,1))}</textarea>
+   <div class="row" style="margin-top:8px"><input id="regNotes" class="grow" placeholder="notes — why this change?">
+   <button class="primary" onclick="regCreate()">Save draft</button></div></div>
+  <div class="panel"><h3>LoRA adapter repos (env-pinned, served via HF Inference API)</h3>
+   <table><tr><th>Domain</th><th>Repository</th></tr>
+   ${Object.entries(r.lora_repos).map(([d,repo])=>`<tr><td><span class="tag">${esc(d)}</span></td><td class="mono">${esc(repo)}</td></tr>`).join('')}</table></div>`;
+}
+async function regCreate(){
+  let cfg;try{cfg=JSON.parse($('#regCfg').value)}catch(e){return toast('Invalid JSON')}
+  const d=await regFetch('/versions',{method:'POST',body:JSON.stringify({config:cfg,notes:$('#regNotes').value})});
+  toast(`Draft v${d.version} saved`);viewRegistry();
+}
+async function regDeploy(v){
+  if(!confirm(`Deploy config v${v}? Live routing changes within ~15s.`))return;
+  const d=await regFetch(`/versions/${v}/deploy`,{method:'POST',body:'{}'});
+  toast(`v${d.active_version} is now ACTIVE`);viewRegistry();
+}
+async function regRollback(){
+  if(!confirm('Roll back to the previously active config?'))return;
+  const d=await regFetch('/rollback',{method:'POST',body:'{}'});
+  toast(`Rolled back — v${d.active_version} ACTIVE`);viewRegistry();
+}
+
+/* ══ Experiment Lab ════════════════════════════════════════════════════ */
+async function viewExperiments(){
+  const [pt,ev]=await Promise.all([api('/admin-api/training/prompt-tests?limit=30'),api('/admin-api/training/evaluations')]);
+  const done=ev.runs.filter(r=>r.status==='DONE');
+  $('#view').innerHTML=`
+  <div class="panel"><h3>Compare two evaluation runs</h3>
+   <div class="row">
+    <select id="cmpA" style="width:260px">${done.map(r=>`<option value="${r.id}">${r.id} · ${esc(r.created_at)}</option>`).join('')}</select>
+    <select id="cmpB" style="width:260px">${done.map(r=>`<option value="${r.id}">${r.id} · ${esc(r.created_at)}</option>`).join('')}</select>
+    <button class="primary" onclick="compareRuns()" ${done.length<2?'disabled':''}>Compare</button>
+   </div>${done.length<2?'<p class="muted small" style="margin-top:6px">Need at least two finished runs.</p>':''}
+   <div id="cmpOut"></div></div>
+  <div class="panel"><h3>All experiments</h3>
+   <table><tr><th>Type</th><th>ID</th><th>When</th><th>Key numbers</th><th></th></tr>
+   ${done.map(r=>{const s=r.summary||{};return `<tr><td><span class="tag">eval</span></td><td class="mono">${r.id}</td><td class="small muted">${esc(r.created_at)}</td>
+     <td>acc ${Math.round((s.accuracy||0)*100)}% · lat ${s.avg_latency_ms||0}ms</td>
+     <td><a href="/admin-api/training/evaluations/${r.id}" target="_blank">Export JSON</a></td></tr>`}).join('')}
+   ${pt.tests.map(t=>`<tr><td><span class="tag">prompt</span></td><td class="mono">${t.id}</td><td class="small muted">${esc(t.created_at)}</td>
+     <td class="clip">${esc(t.prompt)}</td><td></td></tr>`).join('')}
+   </table></div>`;
+}
+async function compareRuns(){
+  const [a,b]=await Promise.all([api('/admin-api/training/evaluations/'+$('#cmpA').value),api('/admin-api/training/evaluations/'+$('#cmpB').value)]);
+  const rows=[['Accuracy',x=>Math.round((x.summary.accuracy||0)*100)+'%'],['Hallucination',x=>Math.round((x.summary.hallucination_rate||0)*100)+'%'],
+    ['Citation',x=>x.summary.citation_accuracy!=null?Math.round(x.summary.citation_accuracy*100)+'%':'—'],['Avg latency',x=>x.summary.avg_latency_ms+'ms']];
+  $('#cmpOut').innerHTML=`<table style="margin-top:10px"><tr><th>Metric</th><th>${a.id}</th><th>${b.id}</th></tr>
+   ${rows.map(([l,f])=>`<tr><td>${l}</td><td>${f(a)}</td><td>${f(b)}</td></tr>`).join('')}</table>`;
+}
+
+/* ══ AI Memory Builder ═════════════════════════════════════════════════ */
+let fbPage=0;const FB_PER=10;
+async function viewMemory(page=0){
+  fbPage=page;
+  const d=await api(`/admin-api/training/feedback?limit=${FB_PER}&offset=${page*FB_PER}`);
+  $('#view').innerHTML=`
+  <div class="panel"><h3>User feedback → future training data</h3>
+   <p class="muted small">Real feedback rows from the existing store. "To candidate" copies the exchange into Conversation Review (PENDING) so it can be approved into a dataset.</p>
+   <table><tr><th>#</th><th>When</th><th>Question / Response</th><th>Signal</th><th></th></tr>
+   ${d.feedback.map(f=>`<tr><td>${f.id}</td><td class="small muted">${esc(f.created_at||'')}</td>
+    <td><div class="clip"><b>${esc(f.question||'')}</b></div><div class="clip muted">${esc(f.response||'')}</div></td>
+    <td>${f.thumb==='up'||f.rating==='good'?'👍':f.thumb==='down'||f.rating==='bad'?'👎':'—'} ${f.note?'<span class="small muted">'+esc(f.note)+'</span>':''}</td>
+    <td><button onclick="fbConvert(${f.id})">To candidate</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">No feedback yet'+(d.note?' — '+esc(d.note):'')+'</td></tr>'}
+   </table>${pager(d.total,page,FB_PER,'viewMemory')}</div>`;
+}
+async function fbConvert(id){
+  try{const d=await api('/admin-api/training/feedback-to-candidate',{method:'POST',body:JSON.stringify({feedback_id:id})});
+  toast('Candidate '+d.candidate_id+' created (PENDING)');}catch(e){}
+}
+
+/* ══ Knowledge Base (Update 57 ingestion APIs) ═════════════════════════ */
+async function kbFetch(path,opts={}){
+  const h={'Content-Type':'application/json',...(opts.headers||{})};
+  if(key())h['X-Train-Key']=key();
+  const r=await fetch(MLURL+'/knowledge'+path,{...opts,headers:h});
+  if(!r.ok){let d='';try{d=(await r.json()).detail||''}catch(e){};toast(`Knowledge ${r.status} ${d}`);throw new Error(r.status);}
+  return r.json();
+}
+async function viewKnowledge(){
+  if(!MLURL){const reg=await api('/admin-api/training/registry');MLURL=reg.ml_service;}
+  const src=await kbFetch('/sources?workspace_id=default-org');
+  const ICON={github:'🐙',web:'🌐',arxiv:'📄',youtube:'▶️',upload:'📎'};
+  $('#view').innerHTML=`
+  <div class="cards">
+   <div class="card"><div class="k">Indexed sources</div><div class="v">${src.total_sources}</div><div class="s">workspace ${esc(src.workspace_id)}</div></div>
+   ${Object.entries(src.by_type).map(([t,b])=>`<div class="card"><div class="k">${ICON[t]||''} ${esc(t)}</div><div class="v">${b.sources}</div><div class="s">${b.chunks} chunks</div></div>`).join('')}
+  </div>
+  <div class="panel"><h3>Ingest knowledge</h3>
+   <div class="row" style="margin-bottom:8px">
+    <select id="kbKind" style="width:210px" onchange="kbKindChanged()">
+     <option value="github">GitHub repository</option><option value="website">Website / documentation</option>
+     <option value="arxiv">arXiv paper</option><option value="youtube">YouTube transcript</option></select>
+    <input id="kbValue" class="grow" placeholder="owner/name">
+    <input id="kbExtra" type="number" value="25" style="width:110px" title="max files/pages">
+    <button class="primary" onclick="kbIngest()">Ingest</button></div>
+   <div class="note">Re-ingesting a source <b>replaces</b> its chunks — crawls are safe to re-run. Everything lands in the same RAG index the chat uses; there is no separate store and no user-visible mode.</div>
+   <div id="kbJob"></div></div>
+  <div class="panel"><h3>Sources</h3>
+   <div class="row" style="margin-bottom:8px"><input class="grow" id="kbSearch" placeholder="Filter sources…" oninput="kbDraw()"></div>
+   <div id="kbList"></div></div>`;
+  window._kbSources=Object.entries(src.by_type).flatMap(([t,b])=>b.items.map(i=>({...i,type:t})));
+  kbDraw();
+}
+function kbKindChanged(){
+  const k=$('#kbKind').value;
+  const ph={github:'owner/name',website:'https://docs.example.com',arxiv:'1706.03762 or arxiv.org URL',youtube:'video URL or 11-char id'};
+  $('#kbValue').placeholder=ph[k];
+  $('#kbExtra').style.display=(k==='github'||k==='website')?'':'none';
+}
+function kbDraw(){
+  const q=($('#kbSearch')?.value||'').toLowerCase();
+  const rows=(window._kbSources||[]).filter(s=>!q||s.source.toLowerCase().includes(q)).slice(0,100);
+  $('#kbList').innerHTML=`<table><tr><th>Type</th><th>Source</th><th>Chunks</th></tr>
+   ${rows.map(s=>`<tr><td><span class="tag">${esc(s.type)}</span></td><td class="mono clip">${esc(s.source)}</td><td>${s.chunks}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">No sources</td></tr>'}</table>`;
+}
+async function kbIngest(){
+  const kind=$('#kbKind').value,value=$('#kbValue').value.trim(),extra=parseInt($('#kbExtra').value)||25;
+  if(!value)return toast('Enter a source');
+  const body={workspace_id:'default-org'};
+  if(kind==='github'){body.repo=value;body.max_files=extra;}
+  else if(kind==='website'){body.url=value;body.max_pages=extra;}
+  else if(kind==='arxiv'){body.paper=value;}
+  else{body.video=value;}
+  const d=await kbFetch('/'+kind,{method:'POST',body:JSON.stringify(body)});
+  if(!d.job_id){toast(`Indexed ${d.chunks} chunks`);return viewKnowledge();}
+  $('#kbJob').innerHTML=`<div class="note">Job <span class="mono">${esc(d.job_id)}</span> queued…</div>`;
+  const poll=setInterval(async()=>{
+    const j=await kbFetch('/jobs/'+d.job_id);
+    $('#kbJob').innerHTML=`<div class="note">Job <span class="mono">${esc(d.job_id)}</span> — <b>${esc(j.status)}</b> ${j.progress}% ${esc(j.current_step||'')}
+      ${j.result?'<br>'+esc(JSON.stringify(j.result)):''}${j.error?'<br><span class="bad">'+esc(j.error)+'</span>':''}</div>`;
+    if(j.status==='COMPLETE'||j.status==='FAILED'){clearInterval(poll);if(j.status==='COMPLETE')viewKnowledge();}
+  },4000);
+}
+
+/* ══ Security Center ═══════════════════════════════════════════════════ */
+async function viewSecurity(){
+  const h=await fetch('/api/health/full').then(r=>r.json());
+  const fw=h.outbound_firewall||{};
+  const rate=fw.inspected?Math.round(1000*fw.would_block/fw.inspected)/10:0;
+  $('#view').innerHTML=`
+  <div class="cards">
+   <div class="card"><div class="k">Enforcement</div><div class="v">${fw.enforcing?'🔴 ON':'🟡 Shadow'}</div><div class="s">ENFORCE_FIREWALL=${fw.enforcing}</div></div>
+   <div class="card"><div class="k">Responses inspected</div><div class="v">${fw.inspected??'—'}</div><div class="s">since last restart</div></div>
+   <div class="card"><div class="k">Would block</div><div class="v" style="color:var(--warn)">${fw.would_block??'—'}</div><div class="s">${rate}% flag rate</div></div>
+   <div class="card"><div class="k">Inspect timeout</div><div class="v">${fw.timeout_seconds??'—'}s</div><div class="s">fail-open on timeout</div></div>
+  </div>
+  <div class="panel"><h3>Outbound findings by reason code</h3>
+   <table><tr><th>Reason code</th><th>Count</th></tr>
+   ${Object.entries(fw.by_reason_code||{}).map(([k,v])=>`<tr><td><span class="tag ${k==='APPROVED'?'ok':'warn'}">${esc(k)}</span></td><td>${v}</td></tr>`).join('')||'<tr><td colspan="2" class="muted">No inspections yet</td></tr>'}</table>
+   <div class="note">Shadow mode measures the false-positive rate before enforcement. Flip <span class="mono">ENFORCE_FIREWALL</span> only when this table justifies it. Logs carry reason codes and hashed user refs only — never prompt or response content.</div></div>`;
+}
+
+/* ══ Deployments ═══════════════════════════════════════════════════════ */
+async function viewDeployments(){
+  const h=await fetch('/api/health/full').then(r=>r.json());
+  if(!MLURL){const reg=await api('/admin-api/training/registry');MLURL=reg.ml_service;}
+  let ml={},reg={},eff={};
+  try{ml=await fetch(MLURL+'/health').then(r=>r.json())}catch(e){ml={status:'unreachable'}}
+  try{reg=await fetch(MLURL+'/registry').then(r=>r.json())}catch(e){}
+  try{eff=await fetch(MLURL+'/efficiency/runs?limit=1').then(r=>r.json())}catch(e){}
+  const lastEff=(eff.runs||[])[0];
+  $('#view').innerHTML=`
+  <div class="cards">
+   <div class="card"><div class="k">Backend (Render)</div><div class="v">${h.backend_status===200?'🟢':'🔴'}</div><div class="s mono">${esc((h.backend_commit||'').slice(0,7))}</div></div>
+   <div class="card"><div class="k">ML service (HF Space)</div><div class="v">${ml.status==='ok'?'🟢':'🔴'}</div><div class="s">${esc(ml.service||'unreachable')}</div></div>
+   <div class="card"><div class="k">Active routing config</div><div class="v">${reg.active_version?'v'+reg.active_version:'defaults'}</div><div class="s">registry</div></div>
+   <div class="card"><div class="k">Response time</div><div class="v">${h.response_time_ms??'—'}ms</div><div class="s">health probe</div></div>
+  </div>
+  <div class="panel"><h3>Deployed components</h3>
+   <table><tr><th>Component</th><th>Where</th><th>Version / detail</th></tr>
+    <tr><td>Backend API + Admin UI</td><td>Render</td><td class="mono">${esc(h.backend_commit||'—')}</td></tr>
+    <tr><td>Frontend (user chat)</td><td>Vercel</td><td class="mono">${esc(h.frontend_version||'—')}</td></tr>
+    <tr><td>RAG / ML service</td><td>HF Space</td><td class="mono">${esc(MLURL)}</td></tr>
+    <tr><td>Vector store + datasets</td><td>Supabase</td><td>pgvector · durable</td></tr>
+   </table></div>
+  <div class="panel"><h3>Efficiency baseline</h3>
+   ${lastEff&&lastEff.metrics?`<table><tr><th>Encoder</th><th>ms / text</th><th>Agreement vs PyTorch</th></tr>
+    <tr><td>PyTorch (serving)</td><td>${lastEff.metrics.torch_ms_per_text}</td><td>baseline</td></tr>
+    <tr><td>ONNX fp32</td><td>${lastEff.metrics.onnx_fp32_ms_per_text}</td><td>${lastEff.metrics.cosine_fp32_vs_torch}</td></tr>
+    <tr><td>ONNX int8</td><td>${lastEff.metrics.onnx_int8_ms_per_text}</td><td>${lastEff.metrics.cosine_int8_vs_torch}</td></tr></table>
+    <div class="note">${esc(lastEff.metrics.note||'')}</div>`:'<p class="muted">No benchmark run yet — POST /efficiency/onnx-benchmark on the ML service.</p>'}</div>`;
+}
+
+/* ══ Autopilot — bounded autonomous tasks (Update 64) ══════════════════ */
+async function viewAutopilot(){
+  const [t,tools]=await Promise.all([
+    api('/autopilot/tasks'),
+    fetch('/autopilot/tools').then(r=>r.json()),
+  ]);
+  $('#view').innerHTML=`
+  <div class="panel"><h3>New autonomous task</h3>
+   <textarea id="apGoal" placeholder="e.g. Research the current state of retrieval-augmented generation and write a briefing with sources"></textarea>
+   <div class="row" style="margin-top:8px"><button class="primary" onclick="apRun()">Run autonomously</button>
+    <span class="muted small">Plans its own steps · max ${tools.max_steps} · ${tools.deadline_seconds}s deadline</span></div>
+   <div class="note"><b>Every tool is read-only by design.</b> Autopilot can search the web, read public pages, query EVA's knowledge base and reason — it cannot write, send, delete, post, execute code or spend money. That is what makes unattended running safe: the worst outcome is a poor report. Actions with real side effects stay behind human approval.</div>
+   <table style="margin-top:6px"><tr><th>Tool</th><th>What it does</th><th>Side effects</th></tr>
+    ${tools.tools.map(x=>`<tr><td class="mono">${esc(x.name)}</td><td class="small">${esc(x.description)}</td><td><span class="tag ok">${esc(x.side_effects)}</span></td></tr>`).join('')}</table>
+  </div>
+  <div class="panel"><div class="row" style="justify-content:space-between"><h3>Tasks</h3>
+    <button onclick="viewAutopilot()">↻ Refresh</button></div>
+   <table><tr><th>ID</th><th>Goal</th><th>Status</th><th>When</th><th></th></tr>
+   ${t.tasks.map(x=>`<tr><td class="mono">${esc(x.id)}</td><td class="clip">${esc(x.goal)}</td>
+     <td><span class="tag ${x.status==='COMPLETED'?'ok':x.status==='FAILED'?'bad':(x.status==='CANCELLED'?'':'warn')}">${esc(x.status)}</span>${x.status==='RUNNING'?' '+x.progress+'%':''}</td>
+     <td class="small muted">${esc(x.created_at)}</td>
+     <td class="row"><button onclick="apOpen('${esc(x.id)}')">Open</button>
+       ${x.status==='RUNNING'?`<button class="danger" onclick="apCancel('${esc(x.id)}')">Stop</button>`:''}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">No tasks yet</td></tr>'}
+   </table></div>
+  <div id="apDetail"></div>`;
+  if(t.tasks.some(x=>x.status==='RUNNING'))window._apTimer=setTimeout(viewAutopilot,5000);
+  else clearTimeout(window._apTimer);
+}
+async function apRun(){
+  const goal=$('#apGoal').value.trim();
+  if(goal.length<8)return toast('Describe the goal first');
+  const d=await api('/autopilot/run',{method:'POST',body:JSON.stringify({goal})});
+  toast(`Task ${d.id} started`);viewAutopilot();
+}
+async function apCancel(id){
+  if(!confirm('Stop this task before its next step?'))return;
+  const d=await api(`/autopilot/tasks/${id}/cancel`,{method:'POST',body:'{}'});
+  toast(d.detail||'Cancelling…');viewAutopilot();
+}
+async function apOpen(id){
+  const d=await api('/autopilot/tasks/'+id);
+  $('#apDetail').innerHTML=`<div class="panel">
+   <h3>${esc(d.goal)}</h3>
+   <p class="muted small">${esc(d.status)} · ${esc(d.created_at)} → ${esc(d.updated_at)}</p>
+   ${d.error?`<div class="note"><span class="bad">${esc(d.error)}</span></div>`:''}
+   <h3 style="margin-top:12px">Plan &amp; execution</h3>
+   <table><tr><th>#</th><th>Tool</th><th>Input</th><th>Why</th><th>OK</th><th>s</th><th>Output</th></tr>
+    ${(d.steps||[]).map(s=>`<tr><td>${s.n}</td><td><span class="tag">${esc(s.tool)}</span></td>
+      <td class="clip small">${esc(s.input)}</td><td class="clip small muted">${esc(s.why||'')}</td>
+      <td>${s.ok?'✅':'⚠️'}</td><td class="small">${s.seconds}</td>
+      <td class="clip small muted">${esc((s.output||'').slice(0,160))}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No steps recorded</td></tr>'}
+   </table>
+   ${d.report?`<h3 style="margin-top:14px">Report</h3><pre class="ans">${esc(d.report)}</pre>`:''}
+  </div>`;
+}
+
+/* ══ Boot ══════════════════════════════════════════════════════════════ */
+const VIEWS={overview:viewOverview,datasets:viewDatasets,knowledge:viewKnowledge,
+  review:()=>viewReview(0),prompt:viewPrompt,
+  eval:viewEval,synthetic:viewSynthetic,finetune:viewFinetune,registry:viewRegistry,
+  autopilot:viewAutopilot,experiments:viewExperiments,memory:()=>viewMemory(0),
+  security:viewSecurity,deployments:viewDeployments};
+document.addEventListener('DOMContentLoaded',()=>{nav();render();});
+</script>
+</body>
+</html>

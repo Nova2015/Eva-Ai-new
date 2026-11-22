@@ -1,0 +1,165 @@
+.eva-settings-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.eva-settings-panel-subtitle {
+  margin: -6px 0 0;
+  color: var(--eva-settings-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.eva-settings-panel-actions,
+.eva-settings-button-row,
+.eva-settings-inline-control,
+.eva-settings-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eva-settings-button-row {
+  justify-content: flex-end;
+}
+
+.eva-settings-button.danger {
+  border-color: rgba(239, 68, 68, 0.48);
+  color: #fecaca;
+}
+
+.eva-settings-range {
+  width: min(260px, 100%);
+  accent-color: var(--accent, #2563eb);
+}
+
+.eva-settings-badge {
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--eva-settings-muted);
+  background: var(--eva-settings-input);
+}
+
+.eva-settings-badge.success {
+  border-color: rgba(16, 185, 129, 0.42);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.eva-settings-check-grid,
+.eva-settings-card-grid,
+.eva-settings-theme-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.eva-settings-check-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.eva-settings-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eva-settings-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 12px;
+  padding: 10px 11px;
+  background: var(--eva-settings-input);
+  color: var(--eva-settings-text);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.eva-settings-theme-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.eva-settings-theme-preview {
+  display: block;
+  width: 100%;
+  height: 54px;
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.eva-settings-theme-preview.light {
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+}
+
+.eva-settings-theme-preview.dark {
+  background: linear-gradient(135deg, #020617, #111827);
+}
+
+.eva-settings-theme-preview.system {
+  background: linear-gradient(90deg, #f8fafc 0 50%, #111827 50% 100%);
+}
+
+.eva-settings-color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.eva-settings-color-swatch.is-active {
+  border-color: var(--eva-settings-text);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.eva-settings-table {
+  display: grid;
+  gap: 7px;
+}
+
+.eva-settings-table-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--eva-settings-line);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: var(--eva-settings-input);
+  color: var(--eva-settings-muted);
+  font-size: 12px;
+}
+
+.eva-settings-inline-control {
+  width: min(520px, 100%);
+}
+
+.eva-settings-inline-control .eva-settings-input {
+  flex: 1;
+  min-width: 180px;
+}
+
+@media (max-width: 920px) {
+  .eva-settings-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .eva-settings-check-grid,
+  .eva-settings-theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .eva-settings-table-row {
+    grid-template-columns: 1fr;
+  }
+}

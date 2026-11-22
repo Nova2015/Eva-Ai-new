@@ -1,0 +1,12 @@
+[submodule "eva-ml-service"]
+	path = eva-ml-service
+	url = https://huggingface.co/spaces/keshav1212/eva-ml-service.git
+	branch = main
+[submodule "external/VoxCPM"]
+	path = external/VoxCPM
+	url = https://github.com/OpenBMB/VoxCPM.git
+	branch = main
+[submodule "external/llama.cpp-omni"]
+	path = external/llama.cpp-omni
+	url = https://github.com/tc-mb/llama.cpp-omni.git
+	branch = feat/t2w-clone

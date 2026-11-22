@@ -1,0 +1,59 @@
+#!/bin/sh
+# ─────────────────────────────────────────────────────────────────────────
+# Block commits containing merge-conflict markers.
+#
+# Why this exists: on 2026-07-30 a bad merge resolution left markers in
+# frontend/build/index.html and asset-manifest.json. Both are COMMITTED
+# build artifacts, so nothing validated them — CRA only checks src/, and
+# Render serves build/ statically without building. The markers reached
+# production and rendered as literal text on the page, because index.html
+# places them outside the React root.
+#
+# Detection uses the angle-bracket markers only. A bare `=======` is NOT
+# checked: this repo has Python docstring underlines like
+# `======================` that would false-positive on it. Every real
+# conflict has the angle markers too, so nothing is missed.
+#
+# Kept strictly POSIX (no arrays, no process substitution) so it behaves
+# the same under Git-Bash, dash, and WSL.
+#
+# Bypass (only if you are genuinely committing an example of a marker):
+#   git commit --no-verify
+# ─────────────────────────────────────────────────────────────────────────
+
+pattern='^(<{7}|>{7})( |$)'
+
+# Scan the STAGED blob (":$file"), not the working tree — those differ, and
+# it is the staged content that would land in the commit.
+# grep -I treats binaries as non-matching, so build assets are safe to scan.
+offenders=$(
+    git diff --cached --name-only --diff-filter=ACM \
+    | while IFS= read -r file; do
+        if git show ":$file" 2>/dev/null | grep -Iq -E "$pattern"; then
+            printf '%s\n' "$file"
+        fi
+    done
+)
+
+if [ -n "$offenders" ]; then
+    echo "✖ Merge-conflict markers found in staged content:"
+    echo
+    printf '%s\n' "$offenders" | while IFS= read -r file; do
+        echo "  $file"
+        git show ":$file" 2>/dev/null \
+            | grep -In -E "$pattern" \
+            | head -4 \
+            | sed 's/^/      line /'
+    done
+    echo
+    echo "Resolve each block, delete all three marker lines (<<<<<<<, =======,"
+    echo ">>>>>>>), and stage again. If the file is generated (frontend/build),"
+    echo "rebuild it rather than hand-editing — hand-editing leaves index.html"
+    echo "inconsistent with the real asset hashes:"
+    echo "    cd frontend && CI=true npx react-scripts build"
+    echo
+    echo "To commit anyway: git commit --no-verify"
+    exit 1
+fi
+
+exit 0

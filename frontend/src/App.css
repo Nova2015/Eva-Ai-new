@@ -1,0 +1,3780 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  color-scheme: dark;
+  --topbar-height: 52px;
+  --mobile-nav-height: 78px;
+  --bg: #020617;
+  --bg2: #07111f;
+  --surface: rgba(15, 23, 42, 0.72);
+  --surface2: rgba(30, 41, 59, 0.76);
+  --card-bg: rgba(15, 23, 42, 0.66);
+  --sidebar-bg: rgba(3, 7, 18, 0.84);
+  --topbar-bg: rgba(2, 6, 23, 0.72);
+  --nav-bg: rgba(2, 6, 23, 0.9);
+  --input-bg: rgba(8, 13, 26, 0.82);
+  --border: rgba(148, 163, 184, 0.18);
+  --border2: rgba(96, 165, 250, 0.24);
+  --text: #f8fafc;
+  --text2: #cbd5e1;
+  --text3: #94a3b8;
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --accent-glow: rgba(59, 130, 246, 0.34);
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --pink: #ec4899;
+  --warn: #f59e0b;
+  --red: #ef4444;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --bg2: #eef4ff;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface2: rgba(241, 245, 249, 0.86);
+  --card-bg: rgba(255, 255, 255, 0.82);
+  --sidebar-bg: rgba(255, 255, 255, 0.84);
+  --topbar-bg: rgba(255, 255, 255, 0.74);
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --input-bg: rgba(255, 255, 255, 0.88);
+  --border: rgba(15, 23, 42, 0.13);
+  --border2: rgba(37, 99, 235, 0.24);
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+  --accent-glow: rgba(37, 99, 235, 0.24);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --bg2: #eef4ff;
+    --surface: rgba(255, 255, 255, 0.78);
+    --surface2: rgba(241, 245, 249, 0.86);
+    --card-bg: rgba(255, 255, 255, 0.82);
+    --sidebar-bg: rgba(255, 255, 255, 0.84);
+    --topbar-bg: rgba(255, 255, 255, 0.74);
+    --nav-bg: rgba(255, 255, 255, 0.92);
+    --input-bg: rgba(255, 255, 255, 0.88);
+    --border: rgba(15, 23, 42, 0.13);
+    --border2: rgba(37, 99, 235, 0.24);
+    --text: #0f172a;
+    --text2: #334155;
+    --text3: #64748b;
+    --accent-soft: rgba(37, 99, 235, 0.1);
+    --accent-glow: rgba(37, 99, 235, 0.24);
+  }
+}
+
+:root[data-accent='blue'] {
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --accent-glow: rgba(59, 130, 246, 0.34);
+}
+
+:root[data-accent='purple'] {
+  --accent: #8b5cf6;
+  --accent-soft: rgba(139, 92, 246, 0.16);
+  --accent-glow: rgba(139, 92, 246, 0.34);
+}
+
+:root[data-accent='green'] {
+  --accent: #10b981;
+  --accent-soft: rgba(16, 185, 129, 0.16);
+  --accent-glow: rgba(16, 185, 129, 0.32);
+}
+
+:root[data-accent='orange'] {
+  --accent: #f97316;
+  --accent-soft: rgba(249, 115, 22, 0.15);
+  --accent-glow: rgba(249, 115, 22, 0.32);
+}
+
+:root[data-accent='pink'] {
+  --accent: #ec4899;
+  --accent-soft: rgba(236, 72, 153, 0.15);
+  --accent-glow: rgba(236, 72, 153, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.16), transparent 34%),
+    linear-gradient(225deg, rgba(14, 165, 233, 0.1), transparent 38%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* One dial for every rem-sized piece of text.
+   The browser default is 16px; 15px takes all 36 rem-based font-sizes down by
+   about 6% in one place instead of editing them individually.
+   Layout is unaffected: rem is used for font-size only in this stylesheet —
+   padding, margin, gap and widths are all px, so nothing reflows.
+   It does NOT reach the 57 hardcoded px font-sizes. Those keep whatever they
+   were given; converting them is a separate, much larger change. */
+html {
+  font-size: 13.5px;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.52), transparent 72%);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  color: var(--text);
+}
+
+input,
+textarea,
+select {
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+/* Mobile input zoom fix */
+@media (max-width: 768px) {
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .chat-input input,
+  .chat-input textarea,
+  .chat-composer input,
+  .chat-composer textarea {
+    font-size: 16px !important;
+  }
+
+}
+.card,
+.panel,
+.analytics-card,
+.chat-card,
+.upload-card,
+.studio-card,
+.glass-card {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  box-shadow:
+    0 22px 70px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 34px var(--accent-glow);
+}
+
+.eva-app-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* One source of truth for the sidebar width. It was 260px here AND hardcoded
+   as calc(260px + 16px) in the Workflow button's position, so widening the
+   sidebar silently left that button overlapping it. */
+:root {
+  --eva-sidebar-w: 288px;
+}
+
+.eva-sidebar-region {
+  width: var(--eva-sidebar-w);
+  min-width: var(--eva-sidebar-w);
+  height: 100vh;
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.eva-main-region {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.eva-route-surface {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.04), transparent 38%),
+    var(--bg);
+}
+
+.eva-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.eva-icon-button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.eva-icon-button:hover {
+  color: var(--text);
+  border-color: var(--border2);
+  background: var(--accent-soft);
+  box-shadow: 0 0 24px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.eva-primary-button {
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 68%, #22d3ee));
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 14px 34px var(--accent-glow);
+}
+
+.eva-topbar {
+  height: var(--topbar-height);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent),
+    var(--topbar-bg);
+  color: var(--text);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  z-index: 35;
+}
+
+.eva-topbar-left,
+.eva-topbar-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eva-topbar-title-wrap {
+  min-width: 0;
+}
+
+.eva-topbar-title {
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 850;
+  line-height: 1.12;
+}
+
+.eva-topbar-crumb {
+  margin-top: 2px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+}
+
+.eva-topbar-new-chat {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 0 12px;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.eva-topbar-new-chat:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 0 24px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.eva-topbar-status {
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0 10px;
+}
+
+.eva-topbar-status span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.eva-topbar-status.is-online {
+  color: var(--green);
+  border-color: rgba(16, 185, 129, 0.26);
+}
+
+.eva-topbar-status.is-offline {
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.26);
+}
+
+/* Degraded: some answers are failing but not all. Amber sits between the
+   existing green/red pair and reuses the same dot + pill treatment, so this
+   is a third state in the current design rather than a new one. --warning
+   falls back to an explicit amber for themes that do not define it. */
+.eva-topbar-status.is-degraded {
+  color: var(--warning, #f59e0b);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.eva-topbar-profile {
+  position: relative;
+}
+
+.eva-topbar-profile-button {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 10px 4px 5px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.eva-topbar-profile-button.is-open,
+.eva-topbar-profile-button:hover {
+  border-color: var(--border2);
+  background: var(--accent-soft);
+}
+
+.eva-topbar-avatar {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #22d3ee);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px var(--accent-glow);
+}
+
+.eva-topbar-profile-chevron {
+  flex: 0 0 auto;
+  color: var(--text3);
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.eva-topbar-profile-button.is-open .eva-topbar-profile-chevron {
+  color: var(--text);
+  transform: rotate(180deg);
+}
+
+.eva-topbar-user {
+  min-width: 0;
+  display: grid;
+  text-align: left;
+}
+
+.eva-topbar-user strong,
+.eva-topbar-menu-user strong {
+  max-width: 150px;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-topbar-user small,
+.eva-topbar-menu-user small {
+  color: var(--text3);
+  font-size: 0.58rem;
+}
+
+.eva-topbar-menu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: 264px;
+  max-width: calc(100vw - 24px);
+  max-height: 72vh;
+  display: grid;
+  gap: 4px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+    var(--card-bg);
+  padding: 7px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 0 0 34px var(--accent-glow);
+  backdrop-filter: blur(22px);
+  z-index: 1000;
+}
+
+.eva-topbar-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3px;
+  padding: 7px 8px 9px;
+}
+
+.eva-topbar-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 7px 8px;
+  text-align: left;
+}
+
+.eva-topbar-menu button:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-topbar-menu button.danger {
+  color: #fca5a5;
+}
+
+.eva-topbar-menu-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
+}
+
+.eva-sidebar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--sidebar-bg);
+  color: var(--text);
+  backdrop-filter: blur(24px) saturate(1.18);
+  -webkit-backdrop-filter: blur(24px) saturate(1.18);
+  box-shadow: 16px 0 54px rgba(0, 0, 0, 0.28);
+}
+
+.eva-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid var(--border);
+  padding: 18px 16px 14px;
+}
+
+.eva-sidebar-logo {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), #22d3ee);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 950;
+  box-shadow: 0 16px 32px var(--accent-glow);
+}
+
+.eva-sidebar-title {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.eva-sidebar-subtitle {
+  margin-top: 3px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.eva-sidebar-new-wrap {
+  padding: 12px 12px 10px;
+}
+
+.eva-sidebar-new-chat {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 68%, #22d3ee));
+  color: #fff;
+  cursor: pointer;
+  font-weight: 850;
+  box-shadow: 0 16px 34px var(--accent-glow);
+}
+
+.eva-sidebar-new-chat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 44px var(--accent-glow);
+}
+
+.eva-sidebar-primary-nav {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 10px 12px;
+}
+
+.eva-sidebar-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 2px 12px 8px;
+  text-transform: uppercase;
+}
+
+.eva-sidebar-history {
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 8px;
+}
+
+.eva-sidebar-search {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--input-bg);
+  color: var(--text3);
+  margin: 0 10px 8px;
+  padding: 0 10px;
+}
+
+.eva-sidebar-search input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.76rem;
+}
+
+.eva-sidebar-search input::placeholder {
+  color: var(--text3);
+}
+
+.eva-sidebar-history-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  overflow-y: auto;
+  padding: 0 8px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text3) 42%, transparent) transparent;
+}
+
+.eva-sidebar-history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.eva-sidebar-history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.eva-sidebar-history-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text3) 34%, transparent);
+}
+
+.eva-sidebar-history-group {
+  display: grid;
+  gap: 3px;
+}
+
+.eva-sidebar-history-group + .eva-sidebar-history-group {
+  margin-top: 8px;
+}
+
+.eva-sidebar-history-group-label {
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 5px 8px 3px;
+  text-transform: uppercase;
+}
+
+.eva-sidebar-history-row {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+
+.eva-sidebar-history-item,
+.eva-sidebar-link {
+  min-width: 0;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 720;
+  padding: 8px 10px;
+  text-align: left;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.eva-sidebar-history-row .eva-sidebar-history-item {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding-right: 34px;
+}
+
+.eva-sidebar-history-menu-button {
+  position: absolute;
+  right: 5px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.eva-sidebar-history-row:hover .eva-sidebar-history-menu-button,
+.eva-sidebar-history-row.is-active .eva-sidebar-history-menu-button,
+.eva-sidebar-history-menu-button:focus-visible {
+  opacity: 1;
+}
+
+.eva-sidebar-history-menu-button:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.eva-sidebar-history-item span,
+.eva-sidebar-link span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-sidebar-history-item:hover,
+.eva-sidebar-link:hover {
+  border-color: var(--border2);
+  background: var(--accent-soft);
+  color: var(--text);
+  transform: translateX(2px);
+}
+
+.eva-sidebar-history-item.is-active,
+.eva-sidebar-history-row.is-active .eva-sidebar-history-item,
+.eva-sidebar-link.is-active {
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent),
+    var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-sidebar-history-menu {
+  position: fixed;
+  width: 176px;
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    var(--card-bg);
+  padding: 6px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.38), 0 0 24px var(--accent-glow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1200;
+}
+
+.eva-sidebar-history-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 730;
+  padding: 8px;
+  text-align: left;
+}
+
+.eva-sidebar-history-menu button:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-sidebar-history-menu button.danger {
+  color: #fca5a5;
+}
+
+.eva-sidebar-rename-input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  outline: none;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 760;
+  padding: 8px 10px;
+}
+
+.eva-sidebar-empty {
+  color: var(--text3);
+  font-size: 0.76rem;
+  padding: 10px;
+}
+
+.eva-sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding: 9px 10px 12px;
+}
+
+.eva-sidebar-settings {
+  width: auto;
+  min-height: 36px;
+  padding: 8px 10px;
+  font-family: inherit;
+}
+
+.eva-chat-page {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: calc(100vh - var(--topbar-height));
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 42%),
+    var(--bg);
+}
+
+.eva-chat-main {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+}
+
+.suggestion-followups {
+  width: min(100% - 48px, 980px) !important;
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (max-width: 768px) {
+  .suggestion-followups {
+    width: calc(100vw - 24px) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+.eva-backend-toast {
+  position: fixed;
+  top: 86px;
+  left: 50%;
+  z-index: 1200;
+  max-width: min(620px, calc(100vw - 28px));
+  transform: translateX(-50%);
+  border: 1px solid rgba(248, 113, 113, 0.34);
+  border-radius: 14px;
+  background: rgba(24, 11, 25, 0.92);
+  color: #fecaca;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.eva-chat-messages {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 34%),
+    var(--bg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Smooth conversation navigation; preserve reduced-motion preferences. */
+@media (prefers-reduced-motion: no-preference) {
+  .eva-chat-messages {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eva-chat-messages {
+    scroll-behavior: auto !important;
+  }
+}
+
+.eva-message-row {
+  width: 100%;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.eva-empty-state {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 14px;
+  margin: min(18vh, 140px) auto 0;
+  padding: 0 10px 24px;
+  justify-items: center;
+  text-align: center;
+  animation: evaFadeUp 280ms ease both;
+}
+
+.eva-empty-state h1 {
+  margin: 0 0 2px;
+  color: var(--text);
+  font-size: clamp(1.7rem, 3vw, 2.55rem);
+  font-weight: 760;
+  letter-spacing: 0;
+  line-height: 1.12;
+  text-align: center;
+}
+
+.eva-empty-state p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--text2);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.eva-empty-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eva-empty-action-card {
+  min-width: 0;
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background:
+  linear-gradient(145deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025)),
+  var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  padding: 18px;
+  text-align: left;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(20px) saturate(1.16);
+  -webkit-backdrop-filter: blur(20px) saturate(1.16);
+  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease, background 170ms ease;
+}
+
+.eva-empty-action-card:hover {
+  border-color: var(--border2);
+  background:
+  linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
+  var(--card-bg);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.28), 0 0 34px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.eva-empty-action-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--border2);
+  border-radius: 15px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+
+.eva-empty-action-card span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.eva-empty-action-card strong {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 820;
+  line-height: 1.1;
+}
+
+.eva-empty-action-card small {
+  color: var(--text3);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.eva-empty-prompt-section {
+  display: grid;
+  gap: 9px;
+  justify-items: center;
+}
+
+.eva-empty-prompt-label {
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 760;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.eva-empty-chip-row,
+.eva-empty-template-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.eva-empty-chip,
+.eva-empty-template {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 720;
+  padding: 8px 12px;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.eva-empty-template {
+  background: color-mix(in srgb, var(--surface2) 72%, transparent);
+}
+
+.eva-empty-chip:hover,
+.eva-empty-template:hover {
+  border-color: var(--border2);
+  background: var(--accent-soft);
+  color: var(--text);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+@keyframes evaFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.eva-rag-audit-panel {
+  width: min(760px, 100%);
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background:
+  linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+  var(--surface);
+  color: var(--text2);
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.eva-rag-audit-panel summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  padding: 9px 11px;
+  font-size: 0.72rem;
+  font-weight: 760;
+}
+
+.eva-rag-audit-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.eva-rag-audit-panel summary span:first-child {
+  color: var(--text);
+}
+
+.eva-rag-audit-panel summary span:not(:first-child) {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--text3);
+  padding: 3px 7px;
+}
+
+.eva-rag-audit-grid {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding: 10px 11px 11px;
+}
+
+.eva-rag-audit-grid div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.eva-rag-audit-grid strong {
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.eva-rag-audit-grid span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text2);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.eva-chat-input-area {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background:
+  linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 90%, transparent) 18%),
+  var(--bg);
+  padding: 10px 16px 14px;
+  backdrop-filter: blur(18px) saturate(1.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.12);
+}
+
+.eva-chat-input-box {
+  transition:
+    border-color 240ms ease,
+    box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 240ms ease,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: box-shadow;
+}
+
+.eva-chat-input-box:focus-within {
+  border-color: var(--accent);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.32),
+    0 0 0 3px var(--accent-glow),
+    0 0 30px var(--accent-glow);
+}
+
+.eva-chat-input-box:hover {
+  border-color: var(--border2);
+}
+
+.eva-chat-input-box {
+  width: min(920px, 100%);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-sizing: border-box;
+}
+
+.eva-chat-input-box > .eva-chat-icon-button,
+.eva-chat-input-box > .eva-chat-send-button {
+  flex-shrink: 0;
+}
+
+.eva-chat-input-box > .eva-chat-textarea {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Existing composer styles continue below. */
+.eva-chat-input-box {
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--input-bg);
+  padding: 5px 7px;
+  box-shadow: 0 16px 46px rgba(0, 0, 0, 0.3), 0 0 28px var(--accent-glow);
+}
+
+.eva-chat-tools-anchor {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.eva-chat-icon-button,
+.eva-chat-send-button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--accent-glow);
+  transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+
+.eva-chat-icon-button:hover,
+.eva-chat-icon-button.is-active {
+  border-color: var(--border2);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-chat-icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--accent-soft), 0 0 16px var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-chat-icon-button {
+    transition: none;
+  }
+
+  .eva-chat-icon-button:hover {
+    transform: none;
+  }
+}
+
+.eva-chat-icon-button.is-recording,
+.eva-chat-icon-button.is-stop {
+  border-color: rgba(239, 68, 68, 0.34);
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+}
+
+
+.eva-chat-send-button {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow), 0 0 24px var(--accent-glow);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.eva-chat-send-button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 0 16px var(--accent-glow), 0 0 32px var(--accent-glow);
+}
+
+.eva-chat-send-button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.eva-chat-send-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  box-shadow:
+    0 0 0 4px var(--accent-soft),
+    0 0 18px var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-chat-send-button {
+    transition: none;
+  }
+
+  .eva-chat-send-button:hover:not(:disabled),
+  .eva-chat-send-button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+.eva-chat-send-button:disabled {
+  background: var(--surface2);
+  color: var(--text3);
+  cursor: default;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.eva-chat-textarea {
+  min-width: 0;
+  flex: 1;
+  min-height: 24px;
+  max-height: 112px;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--sans);
+  /* 14px on desktop, where iOS auto-zoom does not exist and 16px simply read
+     as oversized next to 12px messages. The 16px minimum matters only on
+     touch, and is set in the max-width:767px block instead — which is where it
+     always needed to be: this rule was pinned to 16px for a while while that
+     block still said 14px !important, so iPhones were auto-zooming the whole
+     time the desktop rule claimed to prevent it.
+     px rather than rem so the root scale cannot drift it. */
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 3px 2px;
+}
+
+.eva-chat-textarea {
+  transition: color 180ms ease;
+  caret-color: var(--accent);
+}
+
+.eva-chat-textarea::placeholder {
+  color: var(--text3);
+  transition: opacity 180ms ease, color 180ms ease;
+}
+
+.eva-chat-textarea:focus::placeholder {
+  opacity: 0.68;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-chat-textarea,
+  .eva-chat-textarea::placeholder {
+    transition: none;
+  }
+}
+
+.eva-attachment-preview {
+  transition:
+    border-color 220ms ease,
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms ease;
+  width: min(820px, calc(100% - 32px));
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  margin: 0 auto 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02)),
+    var(--card-bg);
+  color: var(--text);
+  padding: 8px 10px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.2);
+}
+
+.eva-attachment-thumb,
+.eva-attachment-file-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+}
+
+.eva-attachment-thumb {
+  object-fit: cover;
+}
+
+.eva-attachment-file-icon {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border2);
+  background: var(--accent-soft);
+  color: var(--text2);
+  font-size: 0.68rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.eva-attachment-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  flex: 1;
+}
+
+.eva-attachment-copy strong,
+.eva-attachment-copy span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-attachment-copy strong {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 780;
+}
+
+.eva-attachment-copy span {
+  color: var(--text3);
+  font-size: 0.72rem;
+}
+
+.eva-attachment-remove {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text3);
+  cursor: pointer;
+}
+
+.eva-attachment-remove:hover {
+  border-color: var(--border2);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-attachment-remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .eva-attachment-preview:hover {
+    border-color: var(--border2);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-attachment-preview {
+    transition: none;
+  }
+
+  .eva-attachment-preview:hover {
+    transform: none;
+  }
+}
+
+.eva-tools-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  width: 304px;
+  max-height: min(72vh, calc(100vh - 128px));
+  display: block;
+  overflow-y: auto;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
+    var(--card-bg);
+  padding: 5px;
+  box-shadow: 0 -22px 70px rgba(0, 0, 0, 0.42), 0 0 32px var(--accent-glow);
+  backdrop-filter: blur(24px) saturate(1.18);
+  -webkit-backdrop-filter: blur(24px) saturate(1.18);
+  scrollbar-width: none;
+  z-index: 9999;
+}
+
+.eva-tools-menu::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.eva-tools-main-page,
+.eva-tools-mobile-more-page {
+  display: grid;
+  gap: 2px;
+}
+
+.eva-tools-mobile-more-page {
+  display: none;
+}
+
+.eva-tools-menu-item,
+.eva-tools-submenu-item {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font: inherit;
+  padding: 7px 8px;
+  text-align: left;
+}
+
+.eva-tools-menu-item:hover,
+.eva-tools-menu-item.is-open,
+.eva-tools-submenu-item:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-tools-menu-icon {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.eva-tools-menu-item span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.eva-tools-menu-item strong {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 780;
+  line-height: 1.15;
+}
+
+.eva-tools-menu-item small {
+  overflow: hidden;
+  color: var(--text3);
+  font-size: 11px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-tools-submenu {
+  position: absolute;
+  left: calc(304px + 8px);
+  bottom: calc(100% + 12px);
+  width: 220px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
+    var(--card-bg);
+  margin: 0;
+  padding: 5px;
+  box-shadow: 0 -22px 70px rgba(0, 0, 0, 0.42), 0 0 32px var(--accent-glow);
+  backdrop-filter: blur(24px) saturate(1.18);
+  -webkit-backdrop-filter: blur(24px) saturate(1.18);
+  z-index: 121;
+}
+
+.eva-tools-submenu-item {
+  min-height: 32px;
+  border-radius: 9px;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 730;
+  padding: 7px 8px;
+}
+
+.eva-tools-back-button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.eva-tools-back-button:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.eva-code-workspace-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 130;
+  pointer-events: none;
+}
+
+.eva-code-workspace-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.34);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.eva-code-workspace-sheet {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  bottom: 14px;
+  width: min(980px, calc(100% - 28px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    var(--card-bg);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48), 0 0 34px var(--accent-glow);
+  backdrop-filter: blur(20px) saturate(1.14);
+  -webkit-backdrop-filter: blur(20px) saturate(1.14);
+  pointer-events: auto;
+}
+
+.eva-code-workspace-sheet-header {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+}
+
+.eva-code-workspace-sheet-header div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.eva-code-workspace-sheet-header span {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.eva-code-workspace-sheet-header strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-code-workspace-sheet-header button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+}
+
+.eva-code-workspace-sheet-body {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 768px, matching the eleven other phone blocks in this file. This was the
+   only 767px block, so a viewport of exactly 768px — iPad portrait — got every
+   other mobile rule but not these 44 selectors: a half-applied layout.
+   It also made "which rule wins" depend on which of two near-identical
+   breakpoints a declaration happened to sit in. The composer's 16px minimum
+   was set in this block while a 768px block later in the file overrode it with
+   14px, so iOS kept auto-zooming through three attempted fixes. */
+@media (max-width: 768px) {
+  .eva-app-shell {
+    height: 100dvh;
+  }
+
+  .eva-sidebar-region {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(86vw, 320px);
+    min-width: 0;
+    transform: translateX(-104%);
+    transition: transform 240ms ease;
+  }
+
+  .eva-app-shell.is-sidebar-open .eva-sidebar-region {
+    transform: translateX(0);
+  }
+
+  .eva-app-shell.is-sidebar-open .eva-chat-input-area {
+    display: none;
+  }
+
+  .eva-route-surface {
+    overflow-x: hidden;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .eva-topbar {
+    height: 52px;
+    min-height: 52px;
+    padding: 0 12px;
+  }
+
+  .eva-topbar-left,
+  .eva-topbar-right {
+    flex: 0 0 auto;
+  }
+
+  .eva-topbar-title-wrap {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .eva-topbar-title {
+    font-size: 18px;
+    letter-spacing: 0;
+  }
+
+  .eva-topbar-profile-button {
+    width: 38px;
+    height: 38px;
+    gap: 0;
+    padding: 4px;
+    justify-content: center;
+  }
+
+  .eva-topbar-profile-button .eva-topbar-user,
+  .eva-topbar-profile-button .eva-topbar-profile-chevron {
+    display: none;
+  }
+
+  .eva-topbar-menu {
+    right: 0;
+    width: min(260px, calc(100vw - 20px));
+    max-height: calc(100dvh - var(--topbar-height) - 18px);
+  }
+
+  .eva-sidebar {
+    border-right-color: var(--border2);
+  }
+
+  .eva-chat-page {
+    height: calc(100dvh - var(--topbar-height));
+    min-height: 0;
+  }
+
+  .eva-chat-page .current-agent,
+  .eva-chat-page .current-agent-bar,
+  .eva-chat-page .agent-status-bar,
+  .eva-chat-page .chat-agent-bar,
+  .eva-chat-page .agent-route-bar {
+    display: none !important;
+  }
+
+  .eva-chat-main {
+    padding-bottom: 0;
+  }
+
+  .eva-chat-input-area {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    max-width: none;
+    z-index: 3000;
+    border-top: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 94%, transparent) 18%),
+      var(--bg);
+    padding: 0;
+    transition: bottom 200ms ease;
+  }
+
+  body.keyboard-open .eva-chat-input-area {
+    bottom: 10px;
+  }
+
+  .eva-chat-input-box {
+    min-height: 46px;
+    padding: 5px 6px;
+  }
+
+  .eva-tools-menu {
+    left: -1px;
+    width: calc(100vw - 32px);
+    max-width: 304px;
+    max-height: min(64vh, calc(100dvh - 150px));
+    overflow-y: auto;
+    border-radius: 18px;
+  }
+
+  .eva-tools-menu.is-more-open .eva-tools-main-page {
+    display: none;
+  }
+
+  .eva-tools-menu.is-more-open .eva-tools-mobile-more-page {
+    display: grid;
+  }
+
+  .eva-tools-submenu-desktop {
+    display: none;
+  }
+
+  .eva-code-workspace-overlay {
+    position: fixed;
+    z-index: 150;
+  }
+
+  .eva-code-workspace-backdrop {
+    display: none;
+  }
+
+  .eva-code-workspace-sheet {
+    inset: 0;
+    width: auto;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .eva-code-workspace-sheet-header {
+    min-height: 50px;
+    padding: 8px 12px;
+  }
+
+  .eva-empty-state {
+    gap: 14px;
+    margin: 28px auto 0;
+    padding: 0 2px 18px;
+  }
+
+  .eva-empty-state h1 {
+    font-size: 26px;
+    line-height: 1.18;
+  }
+
+  .eva-empty-state p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .eva-empty-card-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .eva-empty-action-card {
+    min-height: 84px;
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .eva-empty-action-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .eva-empty-chip-row,
+  .eva-empty-template-row {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0 2px 4px;
+    scrollbar-width: none;
+  }
+
+  .eva-empty-chip-row::-webkit-scrollbar,
+  .eva-empty-template-row::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .eva-empty-chip,
+  .eva-empty-template {
+    flex: 0 0 auto;
+    max-width: 82vw;
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .eva-rag-audit-panel summary {
+    flex-wrap: wrap;
+  }
+
+  .eva-chat-messages {
+    padding-bottom: 90px !important;
+  }
+
+  .eva-message-bubble,
+  .eva-message-bubble > div,
+  .eva-message-bubble .katex,
+  .eva-message-bubble code {
+    font-size: 14px !important;
+  }
+
+  .suggestion-followups button {
+    font-size: 13px !important;
+  }
+
+  .eva-chat-textarea {
+    /* 16px on touch, and this is the rule that decides it. Below 16px iOS
+       zooms the page when the field is focused, and the user then has to
+       pinch back out to see the conversation — the annoyance that gets
+       "solved" by disabling zoom entirely, which is what index.html used to
+       do. Desktop keeps 14px; there is no such behaviour there. */
+    font-size: 16px !important;
+    line-height: 1.35;
+  }
+
+  .eva-chat-icon-button,
+  .eva-chat-send-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .eva-chat-icon-button svg,
+  .eva-chat-send-button svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* ✅ EVA Mobile Compact UI Fix */
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  .eva-chat-page,
+  .chat-page,
+  .chat-shell {
+    width: 100% !important;
+    height: calc(100dvh - var(--topbar-height)) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  /* Top mobile header */
+  .eva-topbar,
+  .mobile-header,
+  .chat-header {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 12px !important;
+  }
+
+  .eva-topbar-title,
+  .mobile-header h1,
+  .chat-header h1,
+  .mobile-title {
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  /* Empty state compact */
+  .empty-state,
+  .chat-empty-state,
+  .eva-empty-state {
+    padding: 28px 14px 0 !important;
+    text-align: center !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .empty-state h1,
+  .chat-empty-state h1,
+  .eva-empty-state h1 {
+    font-size: clamp(24px, 7vw, 28px) !important;
+    line-height: 1.15 !important;
+    margin: 0 0 12px !important;
+    white-space: normal !important;
+  }
+
+  .empty-state p,
+  .chat-empty-state p,
+  .eva-empty-state p {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    margin: 0 auto 16px !important;
+    max-width: 92vw !important;
+  }
+
+  /* Starter chips compact and scrollable */
+  .starter-prompts,
+  .prompt-chips,
+  .empty-state-actions,
+  .suggestion-chips,
+  .eva-empty-chip-row,
+  .eva-empty-template-row {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    width: 100% !important;
+    max-width: calc(100vw - 20px) !important;
+    padding: 0 2px 6px !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  .starter-prompts::-webkit-scrollbar,
+  .prompt-chips::-webkit-scrollbar,
+  .empty-state-actions::-webkit-scrollbar,
+  .suggestion-chips::-webkit-scrollbar,
+  .eva-empty-chip-row::-webkit-scrollbar,
+  .eva-empty-template-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .starter-prompts button,
+  .prompt-chips button,
+  .empty-state-actions button,
+  .suggestion-chips button,
+  .eva-empty-chip,
+  .eva-empty-template {
+    flex: 0 0 auto !important;
+    min-height: 30px !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+    max-width: 82vw !important;
+  }
+
+  /* Chat messages area leaves room for composer */
+  .chat-scroll,
+  .chat-messages,
+  .messages,
+  .eva-chat-messages {
+    height: calc(100dvh - 52px - 80px) !important;
+    max-height: calc(100dvh - 52px - 80px) !important;
+    overflow-y: auto !important;
+    padding: 12px 10px 90px !important;
+    box-sizing: border-box !important;
+  }
+
+  .message-bubble,
+  .chat-bubble,
+  .eva-message-bubble,
+  .eva-message-bubble > div,
+  .eva-message-bubble .katex,
+  .eva-message-bubble code,
+  .assistant-message,
+  .user-message,
+  .message.assistant,
+  .message.user {
+    max-width: 88vw !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .suggestion-followups button {
+    font-size: 13px !important;
+  }
+
+  /* Chat input fixed to the real bottom */
+  .eva-chat-input-area,
+  .chat-composer,
+  .composer-wrap,
+  .chat-input-wrap {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    z-index: 3000 !important;
+  }
+
+  .eva-chat-input-box {
+    min-height: 46px !important;
+    padding: 5px 6px !important;
+  }
+
+  .chat-input,
+  .chat-textarea,
+  .eva-chat-textarea,
+  textarea[placeholder="Ask EVA anything..."],
+  input[placeholder="Ask EVA anything..."] {
+    min-height: 24px !important;
+    max-height: 96px !important;
+    /* 16px, not 14px. This block is max-width:768px and sits AFTER the
+       max-width:767px block, so with equal specificity and both !important it
+       is this declaration that reaches an iPhone. Setting 16px in the earlier
+       block alone changed nothing — the composer still auto-zoomed on focus,
+       because this line won. */
+    font-size: 16px !important;
+    padding: 3px 2px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Floating quick button smaller */
+  .eva-floating-control {
+    width: 40px !important;
+    min-height: 78px !important;
+    right: 8px !important;
+    bottom: 96px !important;
+    padding: 5px 4px !important;
+    z-index: 2500 !important;
+  }
+
+  .eva-floating-control button {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 16px !important;
+  }
+
+  .eva-chat-icon-button,
+  .eva-chat-send-button {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .eva-chat-icon-button svg,
+  .eva-chat-send-button svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
+/* ✅ EVA compact UI + fit message bubble */
+:root {
+  --eva-font-sm: 12px;
+  --eva-font-md: 13px;
+  --eva-font-lg: 14px;
+}
+
+/* Sidebar compact */
+.sidebar,
+.desktop-sidebar {
+  width: 260px !important;
+}
+
+.eva-sidebar {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.eva-sidebar-brand {
+  gap: 9px !important;
+  padding: 14px 14px 11px !important;
+}
+
+.eva-sidebar-logo {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  box-shadow: 0 12px 24px var(--accent-glow) !important;
+}
+
+.eva-sidebar-title {
+  font-size: 0.9rem !important;
+}
+
+.eva-sidebar-subtitle,
+.eva-sidebar-section-label,
+.eva-sidebar-history-group-label {
+  font-size: 0.56rem !important;
+}
+
+.eva-sidebar-new-wrap {
+  padding: 10px 10px 8px !important;
+}
+
+.eva-sidebar-primary-nav {
+  gap: 3px !important;
+  padding: 0 9px 10px !important;
+}
+
+.eva-sidebar-history-list {
+  gap: 2px !important;
+  padding: 0 7px !important;
+}
+
+.eva-sidebar-link {
+  min-height: 34px !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  padding: 7px 9px !important;
+  font-size: 12px !important;
+}
+
+.eva-sidebar-link svg,
+.eva-sidebar-history-item svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.eva-sidebar-search {
+  min-height: 31px !important;
+  margin: 0 9px 7px !important;
+  padding: 0 9px !important;
+  border-radius: 10px !important;
+}
+
+.eva-sidebar-search input {
+  font-size: 12px !important;
+}
+
+.eva-sidebar-history-row {
+  border-radius: 10px !important;
+}
+
+.eva-sidebar-history-row .eva-sidebar-history-item {
+  padding-right: 30px !important;
+}
+
+.eva-sidebar-history-menu-button {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 8px !important;
+}
+
+.eva-sidebar-footer {
+  padding: 8px 9px 10px !important;
+}
+
+.sidebar *,
+.desktop-sidebar *,
+.eva-sidebar * {
+  font-size: 12px !important;
+}
+
+.eva-sidebar-logo {
+  font-size: 13px !important;
+}
+
+.eva-sidebar-title {
+  font-size: 13px !important;
+}
+
+.sidebar .logo,
+.eva-logo,
+.sidebar-logo,
+.eva-sidebar-logo {
+  transform: scale(0.9);
+  transform-origin: left center;
+}
+
+.sidebar button,
+.sidebar a,
+.nav-item,
+.sidebar-nav-item {
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+}
+
+.new-chat,
+.new-chat-btn,
+.sidebar-new-chat,
+.eva-sidebar-new-chat {
+  height: 38px !important;
+  min-height: 38px !important;
+  font-size: 12px !important;
+  border-radius: 12px !important;
+}
+
+.history-item,
+.chat-history-item,
+.eva-sidebar-history-item {
+  min-height: 34px !important;
+  padding: 7px 9px !important;
+  font-size: 12px !important;
+}
+
+/* Header compact */
+.chat-header,
+.topbar,
+.mobile-header {
+  min-height: 52px !important;
+  height: 52px !important;
+}
+
+.chat-header h1,
+.mobile-title,
+.topbar-title {
+  font-size: 18px !important;
+}
+
+/* Chat messages compact */
+.message-bubble,
+.chat-bubble,
+.assistant-bubble,
+.bot-bubble {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  padding: 10px 13px !important;
+  border-radius: 14px !important;
+}
+
+/* User message bubble fit to text */
+.user-message,
+.message.user,
+.chat-message.user {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.user-bubble,
+.user-message .message-bubble,
+.message.user .message-bubble,
+.chat-message.user .message-bubble {
+  display: inline-block !important;
+  width: auto !important;
+  min-width: unset !important;
+  max-width: 70% !important;
+  padding: 9px 14px !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+@media (max-width: 768px) {
+  .user-bubble,
+  .user-message .message-bubble,
+  .message.user .message-bubble,
+  .chat-message.user .message-bubble {
+    max-width: 78vw !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* If inline/user bubble class itself has width */
+.user-message,
+.message.user,
+.user-bubble {
+  width: fit-content !important;
+  max-width: min(70vw, 560px) !important;
+  margin-left: auto !important;
+}
+
+/* Short message like hi */
+.user-bubble:has(span),
+.user-bubble:has(p) {
+  min-width: 0 !important;
+}
+
+/* Assistant readable */
+.assistant-message,
+.message.assistant,
+.bot-message {
+  max-width: min(760px, 80vw) !important;
+}
+
+/* Action buttons compact */
+.message-actions button,
+.copy-btn,
+.regenerate-btn {
+  height: 28px !important;
+  padding: 4px 9px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+}
+
+/* Suggestions compact */
+.suggestion-followups,
+.suggested-followups {
+  max-width: min(920px, 92vw) !important;
+}
+
+.suggestion-followups button,
+.suggested-followups button {
+  min-height: 34px !important;
+  padding: 7px 12px !important;
+  font-size: 13px !important;
+  border-radius: 14px !important;
+}
+
+/* Profile dropdown compact */
+.profile-menu,
+.user-menu,
+.account-dropdown,
+.profile-dropdown,
+.eva-topbar-menu {
+  width: 264px !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: 72vh !important;
+  overflow-y: auto !important;
+  padding: 7px !important;
+  border-radius: 14px !important;
+}
+
+.profile-menu *,
+.user-menu *,
+.account-dropdown *,
+.profile-dropdown *,
+.eva-topbar-menu * {
+  font-size: 12px !important;
+}
+
+.profile-menu button,
+.user-menu button,
+.account-dropdown button,
+.profile-dropdown button,
+.profile-menu a,
+.user-menu a,
+.account-dropdown a,
+.profile-dropdown a,
+.eva-topbar-menu button {
+  min-height: 31px !important;
+  padding: 7px 8px !important;
+  font-size: 12px !important;
+  border-radius: 9px !important;
+}
+
+.profile-menu svg,
+.user-menu svg,
+.account-dropdown svg,
+.profile-dropdown svg,
+.eva-topbar-menu svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.eva-topbar-menu-user {
+  gap: 8px !important;
+  margin-bottom: 3px !important;
+  padding: 7px 8px 9px !important;
+}
+
+.eva-topbar-menu .eva-topbar-avatar {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 9px !important;
+  font-size: 0.64rem !important;
+}
+
+/* Plus/upload menu compact */
+.eva-plus-menu,
+.upload-menu,
+.attach-menu,
+.quick-action-menu,
+.eva-tools-menu {
+  width: 304px !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: 72vh !important;
+  overflow-y: auto !important;
+  padding: 5px !important;
+  border-radius: 14px !important;
+}
+
+.eva-plus-menu button,
+.upload-menu button,
+.attach-menu button,
+.quick-action-menu button,
+.eva-tools-menu-item,
+.eva-tools-submenu-item {
+  min-height: 32px !important;
+  gap: 8px !important;
+  padding: 7px 8px !important;
+  border-radius: 9px !important;
+}
+
+.eva-plus-menu *,
+.upload-menu *,
+.attach-menu *,
+.quick-action-menu *,
+.eva-tools-menu * {
+  font-size: 12px !important;
+}
+
+.eva-plus-menu .title,
+.upload-menu .title,
+.attach-menu .title,
+.quick-action-menu .title,
+.eva-tools-menu-item strong {
+  font-size: 12px !important;
+  line-height: 1.12 !important;
+}
+
+.eva-plus-menu .subtitle,
+.upload-menu .subtitle,
+.attach-menu .subtitle,
+.quick-action-menu .subtitle,
+.eva-tools-menu-item small {
+  font-size: 11px !important;
+  line-height: 1.12 !important;
+}
+
+.eva-tools-main-page,
+.eva-tools-mobile-more-page {
+  gap: 2px !important;
+}
+
+.eva-tools-menu-icon {
+  width: 25px !important;
+  height: 25px !important;
+  border-radius: 8px !important;
+}
+
+.eva-tools-menu-icon svg,
+.eva-tools-submenu-item svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Chat input compact */
+.chat-composer,
+.composer-wrap,
+.chat-input-wrap {
+  max-width: 920px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.chat-input,
+.chat-textarea,
+textarea[placeholder="Ask EVA anything..."],
+input[placeholder="Ask EVA anything..."] {
+  min-height: 46px !important;
+  font-size: 14px !important;
+  padding: 10px 12px !important;
+}
+
+/* Mobile compact */
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    overflow-x: hidden !important;
+  }
+
+  .chat-header,
+  .mobile-header {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  .chat-header h1,
+  .mobile-title {
+    font-size: 17px !important;
+  }
+
+  .user-message .message-bubble,
+  .message.user .message-bubble,
+  .chat-message.user .message-bubble,
+  .user-bubble {
+    max-width: 78vw !important;
+    padding: 9px 13px !important;
+    font-size: 14px !important;
+  }
+
+  .assistant-message,
+  .message.assistant,
+  .bot-message {
+    max-width: 88vw !important;
+    font-size: 14px !important;
+  }
+
+  .profile-menu,
+  .user-menu,
+  .account-dropdown,
+  .profile-dropdown,
+  .eva-topbar-menu {
+    position: fixed !important;
+    top: 58px !important;
+    left: 14px !important;
+    right: 14px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 64vh !important;
+    padding: 6px !important;
+  }
+
+  .eva-plus-menu,
+  .upload-menu,
+  .attach-menu,
+  .quick-action-menu,
+  .eva-tools-menu {
+    position: fixed !important;
+    left: 14px !important;
+    right: 14px !important;
+    bottom: 72px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 64vh !important;
+    padding: 5px !important;
+  }
+
+  .chat-composer,
+  .composer-wrap,
+  .chat-input-wrap {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    z-index: 3000 !important;
+  }
+
+  .chat-scroll,
+  .chat-messages,
+  .messages,
+  .eva-chat-messages,
+  .chat-body,
+  .chat-content {
+    padding-bottom: 90px !important;
+  }
+}
+
+/* ✅ Desktop sidebar overlap fix */
+@media (min-width: 769px) {
+  .eva-app-shell {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .eva-sidebar-region {
+    flex: 0 0 260px !important;
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+  }
+
+  .eva-chat-page,
+  .chat-page,
+  .chat-shell {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .eva-sidebar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+
+  .eva-chat-main,
+  .chat-main,
+  .chat-content,
+  .chat-shell-main {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* ✅ Center chat content */
+.eva-chat-messages,
+.messages-scroll {
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.suggestion-followups {
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.chat-composer,
+.composer-wrap,
+.chat-input-wrap {
+  max-width: 920px !important;
+}
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root,
+  .eva-app-shell,
+  .eva-main-region,
+  .eva-route-surface,
+  .eva-chat-page,
+  .eva-chat-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-chat-messages,
+  .messages-scroll {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 12px 10px 96px !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-message-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-message-row-user {
+    justify-content: flex-end !important;
+  }
+
+  .eva-message-row-assistant {
+    justify-content: flex-start !important;
+  }
+
+  .eva-message-body-user {
+    display: flex !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-message-bubble-user {
+    display: inline-flex !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    max-width: 78vw !important;
+    margin-left: auto !important;
+    padding: 8px 13px !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-message-body-assistant {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .eva-message-bubble-assistant,
+  .eva-message-bubble-assistant > div {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+  }
+
+  .suggestion-followups {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .suggestion-followups button {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .eva-chat-input-area,
+  .chat-composer,
+  .composer-wrap,
+  .chat-input-wrap {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    z-index: 3000 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Update 66 — menu polish
+   Measured before changing: tool items render at 42px, profile items at
+   31px, titles at 12px. The menus were already denser than a ChatGPT-style
+   target, so the desktop sizing is left alone — shrinking further would
+   hurt. Two things genuinely needed fixing:
+     1. Glass was too heavy (blur 22-24px) — softened the whole UI.
+     2. On touch devices those items are below the 44px minimum tap target
+        (WCAG 2.5.5 / Apple HIG), which is a real usability defect, not a
+        matter of taste.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 1. Lighter, more legible glass. */
+.eva-tools-menu,
+.eva-topbar-menu {
+  background: rgba(17, 24, 39, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  backdrop-filter: blur(9px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(1.05) !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.42) !important;
+}
+
+@media (pointer: coarse) {
+  /* 2. Touch targets: 44px floor. Desktop (fine pointer) keeps the
+        compact sizing, which is correct for a mouse. */
+  .eva-tools-menu-item,
+  .eva-tools-submenu-item {
+    min-height: 48px !important;
+    padding: 9px 10px !important;
+  }
+  .eva-tools-menu-item strong { font-size: 13.5px !important; }
+  .eva-tools-menu-item small  { font-size: 11.5px !important; }
+  .eva-tools-menu-icon { width: 30px !important; height: 30px !important; }
+  .eva-tools-menu-icon svg { width: 16px !important; height: 16px !important; }
+
+  .eva-topbar-menu button { min-height: 44px; font-size: 13.5px; padding: 9px 10px; }
+  .eva-topbar-menu-user { padding: 10px 10px 12px; }
+  .eva-topbar-avatar { width: 34px; height: 34px; font-size: 0.78rem; }
+}
+
+/* 3. Mobile: tools become a bottom sheet — reachable one-handed, the
+      pattern every native app uses. Anchored to the viewport, not the
+      composer, so it cannot be trapped by a transformed ancestor. */
+@media (max-width: 768px) {
+  .eva-tools-menu {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(70dvh, 70vh) !important;
+    border-radius: 18px 18px 0 0 !important;
+    border-bottom: 0 !important;
+    padding: 6px 10px calc(10px + env(safe-area-inset-bottom)) !important;
+    animation: evaSheetUp 180ms ease-out;
+  }
+  /* Grab handle, so it reads as a sheet rather than a clipped popover. */
+  .eva-tools-menu::before {
+    content: '';
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: 4px auto 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+  }
+  @keyframes evaSheetUp {
+    from { transform: translateY(14px); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-tools-menu { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Slice 2 — named theme palettes
+   Keyed on [data-palette], which ThemeContext sets to the RESOLVED theme,
+   so 'system' picks up midnight or light rather than needing its own copy
+   of every token. Only colour tokens are overridden — layout, spacing and
+   the accent system are untouched, so a palette can never break geometry.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* EVA Midnight — the default. Colours per spec. */
+:root[data-palette='midnight'] {
+  color-scheme: dark;
+  --bg: #090B14;
+  --bg2: #0C1020;
+  --surface: rgba(18, 24, 38, 0.82);
+  --surface2: rgba(26, 34, 52, 0.86);
+  --card-bg: rgba(18, 24, 38, 0.76);
+  --sidebar-bg: rgba(9, 11, 20, 0.92);
+  --topbar-bg: rgba(9, 11, 20, 0.78);
+  --nav-bg: rgba(9, 11, 20, 0.94);
+  --input-bg: rgba(18, 24, 38, 0.88);
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(124, 92, 255, 0.28);
+  --text: #F8FAFC;
+  --text2: #CBD5E1;
+  --text3: #94A3B8;
+  --accent: #7C5CFF;
+  --accent-soft: rgba(124, 92, 255, 0.15);
+  --accent-glow: rgba(124, 92, 255, 0.3);
+  --cyan: #38BDF8;
+  --green: #22C55E;
+  --warn: #F59E0B;
+  --red: #EF4444;
+}
+
+/* Aurora — cool teal/violet, slightly lifted surfaces. */
+:root[data-palette='aurora'] {
+  color-scheme: dark;
+  --bg: #0A1020;
+  --bg2: #0E1730;
+  --surface: rgba(20, 32, 58, 0.82);
+  --surface2: rgba(28, 44, 76, 0.86);
+  --card-bg: rgba(20, 32, 58, 0.76);
+  --sidebar-bg: rgba(10, 16, 32, 0.92);
+  --topbar-bg: rgba(10, 16, 32, 0.78);
+  --nav-bg: rgba(10, 16, 32, 0.94);
+  --input-bg: rgba(20, 32, 58, 0.88);
+  --border: rgba(148, 197, 255, 0.14);
+  --border2: rgba(34, 211, 238, 0.3);
+  --text: #F0F9FF;
+  --text2: #C7D9EC;
+  --text3: #8CA3BF;
+  --accent: #22D3EE;
+  --accent-soft: rgba(34, 211, 238, 0.15);
+  --accent-glow: rgba(167, 139, 250, 0.32);
+  --cyan: #67E8F9;
+  --green: #34D399;
+}
+
+/* Minimal Dark — near-monochrome, no colour cast. */
+:root[data-palette='minimal'] {
+  color-scheme: dark;
+  --bg: #0D0D0F;
+  --bg2: #121215;
+  --surface: rgba(24, 24, 27, 0.88);
+  --surface2: rgba(32, 32, 36, 0.9);
+  --card-bg: rgba(24, 24, 27, 0.82);
+  --sidebar-bg: rgba(13, 13, 15, 0.94);
+  --topbar-bg: rgba(13, 13, 15, 0.82);
+  --nav-bg: rgba(13, 13, 15, 0.96);
+  --input-bg: rgba(24, 24, 27, 0.9);
+  --border: rgba(255, 255, 255, 0.09);
+  --border2: rgba(255, 255, 255, 0.16);
+  --text: #FAFAFA;
+  --text2: #D4D4D8;
+  --text3: #8B8B93;
+  --accent: #E5E7EB;
+  --accent-soft: rgba(229, 231, 235, 0.1);
+  --accent-glow: rgba(229, 231, 235, 0.16);
+  --cyan: #A1A1AA;
+  --green: #A3A3A3;
+}
+
+/* Neon — high-chroma on near-black. Deliberately the loudest option. */
+:root[data-palette='neon'] {
+  color-scheme: dark;
+  --bg: #07060F;
+  --bg2: #0C0A18;
+  --surface: rgba(20, 16, 38, 0.84);
+  --surface2: rgba(30, 22, 56, 0.88);
+  --card-bg: rgba(20, 16, 38, 0.78);
+  --sidebar-bg: rgba(7, 6, 15, 0.93);
+  --topbar-bg: rgba(7, 6, 15, 0.8);
+  --nav-bg: rgba(7, 6, 15, 0.95);
+  --input-bg: rgba(20, 16, 38, 0.9);
+  --border: rgba(255, 46, 151, 0.2);
+  --border2: rgba(0, 240, 255, 0.34);
+  --text: #FFFFFF;
+  --text2: #E6D9F5;
+  --text3: #9E8CBF;
+  --accent: #FF2E97;
+  --accent-soft: rgba(255, 46, 151, 0.16);
+  --accent-glow: rgba(0, 240, 255, 0.36);
+  --cyan: #00F0FF;
+  --green: #39FF88;
+}
+
+/* Nature — warm greens, lower contrast for long sessions. */
+:root[data-palette='nature'] {
+  color-scheme: dark;
+  --bg: #0C1410;
+  --bg2: #101C16;
+  --surface: rgba(22, 38, 30, 0.84);
+  --surface2: rgba(30, 50, 40, 0.88);
+  --card-bg: rgba(22, 38, 30, 0.78);
+  --sidebar-bg: rgba(12, 20, 16, 0.93);
+  --topbar-bg: rgba(12, 20, 16, 0.8);
+  --nav-bg: rgba(12, 20, 16, 0.95);
+  --input-bg: rgba(22, 38, 30, 0.9);
+  --border: rgba(163, 230, 53, 0.14);
+  --border2: rgba(74, 222, 128, 0.28);
+  --text: #F2FBF4;
+  --text2: #CBE5D2;
+  --text3: #8FAF9A;
+  --accent: #4ADE80;
+  --accent-soft: rgba(74, 222, 128, 0.14);
+  --accent-glow: rgba(163, 230, 53, 0.3);
+  --cyan: #5EEAD4;
+  --green: #A3E635;
+}
+
+/* Light palette reuses the existing light tokens. */
+:root[data-palette='light'] {
+  color-scheme: light;
+  --bg: #F8FAFC;
+  --bg2: #EEF4FF;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface2: rgba(241, 245, 249, 0.86);
+  --card-bg: rgba(255, 255, 255, 0.82);
+  --sidebar-bg: rgba(255, 255, 255, 0.84);
+  --topbar-bg: rgba(255, 255, 255, 0.74);
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --input-bg: rgba(255, 255, 255, 0.88);
+  --border: rgba(15, 23, 42, 0.13);
+  --border2: rgba(37, 99, 235, 0.24);
+  --text: #0F172A;
+  --text2: #334155;
+  --text3: #64748B;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+  --accent-glow: rgba(37, 99, 235, 0.24);
+}
+
+/* An explicit accent choice still wins over the palette's default accent. */
+:root[data-accent='blue']   { --accent: #3b82f6; }
+:root[data-accent='purple'] { --accent: #8b5cf6; }
+:root[data-accent='green']  { --accent: #10b981; }
+:root[data-accent='orange'] { --accent: #f97316; }
+:root[data-accent='pink']   { --accent: #ec4899; }
+
+/* Theme picker cards */
+.eva-theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px}
+.eva-theme-card{display:flex;flex-direction:column;gap:7px;padding:9px;border-radius:12px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;
+  font-size:12.5px;text-align:left;transition:border-color 150ms ease,transform 150ms ease}
+.eva-theme-card:hover{transform:translateY(-1px);border-color:var(--border2)}
+.eva-theme-card.is-active{border-color:var(--accent);color:var(--text)}
+.eva-theme-bars{display:flex;gap:4px;height:26px;border-radius:8px;overflow:hidden}
+.eva-theme-bars i{flex:1;display:block}
+@media (prefers-reduced-motion: reduce){.eva-theme-card:hover{transform:none}}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Slice 4 — message identity + action row
+   The previous action buttons used fixed purple hex values (#2d1b5e,
+   #6b47a8), so they ignored the theme system entirely and stayed violet
+   under Nature, Minimal Dark and Light. Everything here is token-driven.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.eva-msg-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;
+  font-size:12.5px;color:var(--text3)}
+.eva-msg-meta strong{color:var(--text);font-weight:650;font-size:13px}
+.eva-msg-meta time{font-size:11.5px;color:var(--text3);font-variant-numeric:tabular-nums}
+.eva-msg-avatar{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+  flex:0 0 auto;overflow:hidden;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;
+  font-size:11px;font-weight:700}
+.eva-msg-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+.eva-msg-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:8px;
+  opacity:0;transition:opacity 160ms ease}
+.eva-message-row:hover .eva-msg-actions,
+.eva-message-row:focus-within .eva-msg-actions{opacity:1}
+.eva-msg-act{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:8px;
+  border:1px solid var(--border);background:transparent;color:var(--text3);
+  font-size:11.5px;cursor:pointer;transition:background 140ms ease,color 140ms ease}
+.eva-msg-act:hover{background:var(--accent-soft);color:var(--text);border-color:var(--border2)}
+.eva-msg-act.is-icon{padding:5px 7px}
+.eva-msg-act.is-up{color:var(--green);border-color:var(--green)}
+.eva-msg-act.is-down{color:var(--red);border-color:var(--red)}
+.eva-msg-saved{font-size:10.5px;color:var(--text3)}
+
+/* Touch has no hover: keep the actions visible and tappable. */
+@media (pointer: coarse){
+  .eva-msg-actions{opacity:1;gap:6px}
+  .eva-msg-act{min-height:36px;padding:8px 11px;font-size:12px}
+  .eva-msg-act.is-icon{min-width:36px;justify-content:center}
+  /* Labels cost too much width on a phone; the icons carry it. */
+  .eva-msg-act span{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  .eva-msg-actions{transition:none}
+}
+
+/* ═══ Slice 5 — tool search, pinning, recents ═══════════════════════════ */
+.eva-tools-search{display:flex;align-items:center;gap:7px;padding:7px 9px;margin-bottom:5px;
+  border-radius:9px;border:1px solid var(--border);background:var(--input-bg);color:var(--text3)}
+.eva-tools-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;
+  color:var(--text);font-size:12.5px;padding:0}
+.eva-tools-search input::placeholder{color:var(--text3)}
+.eva-tools-menu-item{position:relative}
+.eva-tool-pin{margin-left:auto;padding:0 2px;font-size:13px;line-height:1;color:var(--text3);
+  opacity:0;transition:opacity 140ms ease,color 140ms ease;cursor:pointer;flex:0 0 auto}
+.eva-tools-menu-item:hover .eva-tool-pin,
+.eva-tools-menu-item:focus-within .eva-tool-pin,
+.eva-tools-menu-item.is-pinned .eva-tool-pin{opacity:1}
+.eva-tools-menu-item.is-pinned .eva-tool-pin{color:var(--accent)}
+.eva-tool-pin:hover{color:var(--accent)}
+.eva-tools-empty{margin:8px 4px;font-size:12px;color:var(--text3)}
+/* Touch: no hover, so pins are always reachable. */
+@media (pointer: coarse){ .eva-tool-pin{opacity:1;padding:0 6px;font-size:15px} }
+
+/* ═══ Slice 6 — motion levels ═══════════════════════════════════════════
+   feedback.js writes data-motion on <html>. The OS-level
+   prefers-reduced-motion is applied there too and always wins, so a user
+   who asked their system for less motion never has to ask again here. */
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after{
+  animation-duration:0s!important;animation-delay:0s!important;
+  animation-iteration-count:1!important;transition-duration:0s!important;
+  scroll-behavior:auto!important}
+/* Minimal keeps colour/opacity transitions (they aid comprehension) but
+   drops looping and transform-based motion (the parts that distract). */
+:root[data-motion='minimal'] *{
+  animation-iteration-count:1!important;animation-duration:.12s!important}
+:root[data-motion='minimal'] .eva-img-skel,
+:root[data-motion='minimal'] .eva-jarvis-dot,
+:root[data-motion='minimal'] .eva-img-spark{animation:none!important}
+/* Slice 4a: timestamp now rides in the action row. */
+.eva-msg-time{margin-left:auto;font-size:10.5px;color:var(--text3);
+  font-variant-numeric:tabular-nums}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Slice 7 — accessibility and performance
+   Findings that drove this, measured rather than assumed:
+     - 4 `outline: none` declarations against 1 :focus-visible rule, so
+       keyboard users lost the focus indicator (WCAG 2.4.7 failure).
+     - Contrast audit of the six palettes: five pass AA outright. On Light,
+       the green accent measured 2.42:1 and orange 2.68:1 against #f8fafc,
+       both under the 3:1 required for UI components (WCAG 1.4.11).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 1. Focus is always visible for keyboard users, never for mouse clicks.
+      Two rings so it reads on both light and dark surfaces. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+/* Nothing should suppress the ring once it is earned. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline-style: solid !important;
+}
+
+/* 2. Light-scheme accent corrections. data-scheme comes from slice 2, so
+      this applies to Light regardless of which palette resolved it. */
+:root[data-scheme='light'] { --accent: #4f46e5; }              /* 6.01:1 */
+:root[data-scheme='light'][data-accent='blue']   { --accent: #2563eb; }  /* 4.94 */
+:root[data-scheme='light'][data-accent='purple'] { --accent: #7c3aed; }
+:root[data-scheme='light'][data-accent='green']  { --accent: #047857; }  /* was 2.42 -> 5.24 */
+:root[data-scheme='light'][data-accent='orange'] { --accent: #c2410c; }  /* was 2.68 -> 4.95 */
+:root[data-scheme='light'][data-accent='pink']   { --accent: #be185d; }
+/* text3 sat at 4.55 — passing but with no margin. */
+:root[data-palette='light'] { --text3: #5b6878; }               /* 5.43:1 */
+
+/* 3. Skip link — first tab stop, hidden until focused. */
+/* Background is a darker accent, not var(--accent): white on #7c5cff measures
+   4.35:1, just under the 4.5 minimum. #6d4ce0 is the same hue at 5.58:1. This
+   is the first thing a keyboard user meets, so it is the last place to ship a
+   contrast failure. */
+.eva-skip-link{position:absolute;left:-9999px;top:0;z-index:10000;
+  padding:10px 16px;border-radius:0 0 10px 0;background:#6d4ce0;color:#fff;
+  font-size:13px;font-weight:600}
+.eva-skip-link:focus{left:0}
+
+/* 4. Screen-reader-only text for icon-only controls. */
+.eva-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* 5. Perf: let the browser skip layout/paint for off-screen messages.
+      content-visibility is the zero-JS form of virtualisation — no library,
+      no scroll maths, no risk of blank rows. contain-intrinsic-size gives an
+      estimated height so the scrollbar does not jump as rows resolve. */
+.eva-message-row{content-visibility:auto;contain-intrinsic-size:auto 120px}
+
+/* 6. Images never reflow the transcript while loading. */
+.eva-img-cell img,.eva-viewer-strip img{background:var(--surface2)}
+
+/* ═══ Status text that adapts to the scheme ═════════════════════════════
+   App.js used fixed pastels (#fecaca, #bbf7d0, #93c5fd) for status text.
+   They are correct light-on-dark (13.57 / 16.20 / 10.89 on #090b14) but
+   collapse to 1.38 / 1.16 / 1.72 on the Light palette — invisible text,
+   not merely low contrast. These tokens flip with data-scheme instead. */
+:root{
+  --danger-text:#fecaca;
+  --success-text:#bbf7d0;
+  --info-text:#93c5fd;
+  --danger-surface:rgba(127,29,29,.16);
+  --success-surface:rgba(21,128,61,.16);
+  --info-surface:rgba(37,99,235,.16);
+}
+:root[data-scheme='light']{
+  --danger-text:#b91c1c;    /* 6.18:1 */
+  --success-text:#15803d;   /* 4.79:1 */
+  --info-text:#1d4ed8;      /* 6.41:1 */
+  --danger-surface:rgba(185,28,28,.09);
+  --success-surface:rgba(21,128,61,.09);
+  --info-surface:rgba(29,78,216,.09);
+}
+
+/* ═══ Tools menu: layout fix + ChatGPT-style density ════════════════════
+   Slice 5 added a pin button as the last child of each row, which stole
+   `.eva-tools-menu-item span:last-child` from the text container. The
+   title and detail lost their grid and ran together on one line
+   ("Upload filePDF, DOCX, TXT"). Target the text span explicitly so the
+   stacking cannot be broken by adding siblings again. */
+.eva-tools-menu-item .eva-tool-text{
+  min-width:0;display:grid;gap:1px;flex:1 1 auto;text-align:left}
+.eva-tools-menu-item .eva-tool-text strong{
+  font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.eva-tools-menu-item .eva-tool-text small{
+  line-height:1.25;color:var(--text3);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+
+/* Denser, narrower — closer to the ChatGPT attach menu. */
+.eva-tools-menu{width:288px!important;padding:6px!important}
+.eva-tools-menu-item{min-height:38px!important;padding:6px 8px!important;gap:9px!important}
+.eva-tools-menu-icon{width:26px!important;height:26px!important;border-radius:7px!important}
+.eva-tools-menu-item .eva-tool-text strong{font-size:12.5px!important}
+.eva-tools-menu-item .eva-tool-text small{font-size:11px!important}
+
+@media (max-width:768px){
+  /* Bottom sheet: roomier rows for thumbs, but still one line each. */
+  .eva-tools-menu{width:100%!important;max-width:100%!important}
+  .eva-tools-menu-item{min-height:52px!important;padding:9px 10px!important}
+  .eva-tools-menu-item .eva-tool-text strong{font-size:14px!important}
+  .eva-tools-menu-item .eva-tool-text small{font-size:12px!important}
+  .eva-tools-menu-icon{width:32px!important;height:32px!important}
+}
+
+
+/* ═══ Profile menu: portalled, so fixed positioning actually works ══════
+   .eva-topbar has backdrop-filter, which makes it the containing block for
+   position:fixed descendants. The mobile sheet was pinning to the bottom of
+   the ~52px topbar and clipping to a single row — which is why only Logout
+   was visible. The menu now renders into <body>. */
+.eva-topbar-menu-backdrop{position:fixed;inset:0;z-index:1400;background:transparent}
+.eva-topbar-menu{z-index:1500}
+
+
+/* ═══ Sidebar footer: Settings was below the fold on mobile ═════════════
+   The footer relied on margin-top:auto inside a column that could overflow
+   the viewport, so the last item (Settings) was pushed off-screen. Pin the
+   footer and let only the list scroll. */
+.eva-sidebar{display:flex;flex-direction:column;min-height:0}
+.eva-sidebar-footer{flex:0 0 auto;position:sticky;bottom:0;z-index:2;
+  background:var(--sidebar-bg);
+  padding-bottom:calc(12px + env(safe-area-inset-bottom))!important}
+
+/* ═══ Tools sheet: shorter ══════════════════════════════════════════════
+   Still too tall on a phone — it covered most of the screen. Tighter rows
+   and a lower cap so the conversation stays partly visible behind it. */
+@media (max-width:768px){
+  .eva-tools-menu{max-height:min(58dvh,58vh)!important;padding:6px 8px calc(8px + env(safe-area-inset-bottom))!important}
+  .eva-tools-menu-item{min-height:44px!important;padding:7px 8px!important;gap:9px!important}
+  .eva-tools-menu-item .eva-tool-text strong{font-size:13px!important}
+  .eva-tools-menu-item .eva-tool-text small{font-size:11.5px!important}
+  .eva-tools-menu-icon{width:28px!important;height:28px!important}
+  .eva-tools-search{padding:6px 9px!important;margin-bottom:4px!important}
+}
+
+/* ═══ Profile menu: top-anchored dropdown, both breakpoints ═════════════
+   Anchored under the avatar rather than sliding from the bottom — the
+   control is top-right, so the menu should open from the control. Still
+   portalled to <body> because .eva-topbar has backdrop-filter and would
+   otherwise capture position:fixed and clip the menu to the topbar. */
+.eva-topbar-menu-backdrop{position:fixed;inset:0;z-index:1400;background:transparent}
+.eva-topbar-menu{
+  position:fixed!important;
+  top:calc(var(--topbar-height) + 6px)!important;
+  right:12px!important; left:auto!important; bottom:auto!important;
+  width:min(268px, calc(100vw - 24px))!important;
+  max-height:calc(100dvh - var(--topbar-height) - 24px)!important;
+  border-radius:16px!important;
+  z-index:1500;
+  /* Grows out of the avatar in the top-right corner. */
+  transform-origin:top right;
+  animation:evaMenuDrop 160ms cubic-bezier(.16,1,.3,1);
+}
+.eva-topbar-menu::before{content:none!important}   /* no sheet grab handle */
+@keyframes evaMenuDrop{
+  from{opacity:0;transform:translateY(-6px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+/* Items animate in just behind the panel, top to bottom. */
+.eva-topbar-menu > *{animation:evaMenuItem 180ms both cubic-bezier(.16,1,.3,1)}
+.eva-topbar-menu > *:nth-child(1){animation-delay:20ms}
+.eva-topbar-menu > *:nth-child(2){animation-delay:35ms}
+.eva-topbar-menu > *:nth-child(3){animation-delay:50ms}
+.eva-topbar-menu > *:nth-child(4){animation-delay:65ms}
+.eva-topbar-menu > *:nth-child(5){animation-delay:80ms}
+.eva-topbar-menu > *:nth-child(n+6){animation-delay:95ms}
+@keyframes evaMenuItem{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+@media (max-width:768px){
+  /* Same anchoring on a phone, just roomier rows for thumbs. */
+  .eva-topbar-menu{right:10px!important;width:min(262px, calc(100vw - 20px))!important}
+  .eva-topbar-menu button{min-height:44px;font-size:13.5px;padding:9px 11px;border-radius:10px}
+  .eva-topbar-menu-user{padding:9px 11px 12px}
+  .eva-topbar-avatar{width:32px;height:32px}
+  .eva-topbar-menu-backdrop{background:rgba(6,8,18,.45)}
+}
+/* data-motion / OS reduced-motion both suppress the entrance. */
+:root[data-motion='off'] .eva-topbar-menu,
+:root[data-motion='off'] .eva-topbar-menu > *{animation:none!important}
+@media (prefers-reduced-motion: reduce){
+  .eva-topbar-menu,.eva-topbar-menu > *{animation:none!important}
+}
+
+/* ═══ Tools menu, rebuilt to match Claude's + menu ══════════════════════
+   Single-line rows, bare icons, quiet right-hand affordance. The previous
+   design stacked a title over a detail line and boxed every icon, which is
+   what made the sheet tall enough to cover the screen. The detail now lives
+   in the title attribute instead of a second row. */
+.eva-tools-menu{
+  width:296px!important;
+  padding:6px!important;
+  border-radius:14px!important;
+  background:var(--surface)!important;
+  border:1px solid var(--border)!important;
+  backdrop-filter:blur(6px)!important;
+  -webkit-backdrop-filter:blur(6px)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.5)!important;
+}
+.eva-tools-menu-item{
+  min-height:38px!important;
+  padding:0 9px!important;
+  gap:11px!important;
+  border-radius:8px!important;
+  align-items:center!important;
+}
+/* Bare icon, no container — the boxed 26px square was half the row height. */
+.eva-tools-menu-icon{
+  width:18px!important;height:18px!important;
+  border:0!important;background:none!important;border-radius:0!important;
+  color:var(--text2)!important;
+}
+.eva-tools-menu-icon svg{width:16px!important;height:16px!important}
+.eva-tools-menu-item .eva-tool-text{
+  display:block!important;flex:1 1 auto;min-width:0;
+  font-size:13.5px!important;font-weight:450!important;
+  color:var(--text)!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.eva-tools-menu-item:hover{background:var(--accent-soft)!important}
+.eva-tools-menu-item:hover .eva-tools-menu-icon{color:var(--text)!important}
+/* Right-hand slot: quiet until hovered, like Claude's chevrons. */
+.eva-tool-pin{font-size:12px!important;color:var(--text3)!important;padding:0 1px!important}
+.eva-tools-search{
+  padding:6px 9px!important;margin-bottom:3px!important;
+  border:0!important;border-bottom:1px solid var(--border)!important;
+  border-radius:0!important;background:transparent!important}
+.eva-tools-search input{font-size:13px!important}
+
+@media (max-width:768px){
+  .eva-tools-menu{width:100%!important;max-width:100%!important;
+    max-height:min(56dvh,56vh)!important;border-radius:16px 16px 0 0!important}
+  .eva-tools-menu-item{min-height:44px!important;padding:0 11px!important}
+  .eva-tools-menu-item .eva-tool-text{font-size:14.5px!important}
+  .eva-tools-menu-icon{width:20px!important;height:20px!important}
+  .eva-tools-menu-icon svg{width:18px!important;height:18px!important}
+}
+
+
+
+/* EVA premium cloud-upload panel */
+.eva-upload-panel {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  color: var(--text);
+}
+
+.eva-cloud-dropzone {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 218px;
+  padding: 22px 14px 18px;
+  box-sizing: border-box;
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 50% 20%, var(--accent-soft), transparent 68%),
+    var(--surface);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .22s ease, background .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+
+.eva-cloud-dropzone:hover,
+.eva-cloud-dropzone.is-dragging {
+  border-color: var(--accent);
+  background: radial-gradient(ellipse at 50% 22%, var(--accent-soft), transparent 72%), var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+.eva-cloud-dropzone:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.eva-cloud-symbol {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 23px;
+  color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 8px 28px var(--accent-soft), inset 0 1px 0 rgba(255,255,255,.08);
+  animation: eva-cloud-float 3.2s ease-in-out infinite;
+}
+
+.eva-cloud-symbol svg {
+  width: 43px;
+  height: 43px;
+  overflow: visible;
+}
+
+.eva-cloud-dropzone:hover .eva-cloud-symbol,
+.eva-cloud-dropzone.is-dragging .eva-cloud-symbol {
+  animation: eva-cloud-active 1.1s ease-in-out infinite;
+}
+
+.eva-cloud-orbit {
+  position: absolute;
+  z-index: -1;
+  width: 94px;
+  height: 94px;
+  top: 20px;
+  left: calc(50% - 47px);
+  border: 1px solid var(--accent-soft);
+  border-radius: 30px;
+  pointer-events: none;
+  animation: eva-cloud-orbit 7s linear infinite;
+}
+
+.eva-cloud-orbit-two {
+  width: 116px;
+  height: 116px;
+  top: 9px;
+  left: calc(50% - 58px);
+  border-style: dashed;
+  opacity: .55;
+  animation-direction: reverse;
+  animation-duration: 13s;
+}
+
+.eva-cloud-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -.2px;
+  color: var(--text);
+}
+
+.eva-cloud-subtitle {
+  margin-top: 4px;
+  color: var(--text3);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.eva-cloud-subtitle span {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.eva-cloud-formats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 13px;
+}
+
+.eva-cloud-formats span {
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text2);
+  font: 600 9px/1.2 var(--mono, monospace);
+  letter-spacing: .25px;
+}
+
+.eva-cloud-footnote {
+  margin-top: 10px;
+  color: var(--text3);
+  font-size: 9.5px;
+  opacity: .85;
+}
+
+.eva-upload-file-list {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  animation: eva-upload-enter .24s ease both;
+}
+
+.eva-upload-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 2px;
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.eva-upload-list-heading span:last-child {
+  color: var(--text3);
+  font-weight: 500;
+  font-size: 10px;
+}
+
+.eva-upload-file-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: border-color .18s ease, transform .18s ease, background .18s ease;
+  animation: eva-upload-enter .22s ease both;
+}
+
+.eva-upload-file-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.eva-file-type-icon {
+  flex: 0 0 39px;
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 43px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: 800 9px/1 var(--mono, monospace);
+  letter-spacing: -.2px;
+}
+
+.eva-file-type-pdf { color: #f87171; background: rgba(248,113,113,.09); }
+.eva-file-type-csv { color: #34d399; background: rgba(52,211,153,.09); }
+.eva-file-type-docx { color: #60a5fa; background: rgba(96,165,250,.09); }
+.eva-file-type-txt { color: var(--text2); }
+.eva-file-type-zip { color: #c084fc; background: rgba(192,132,252,.09); }
+
+.eva-upload-file-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.eva-upload-file-name {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eva-upload-file-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  color: var(--text3);
+  font-size: 9.5px;
+}
+
+.eva-file-meta-dot { opacity: .65; }
+
+.eva-file-progress-track {
+  overflow: hidden;
+  height: 3px;
+  margin-top: 7px;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.eva-file-progress-indicator {
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: eva-file-progress 1.7s ease-in-out infinite;
+}
+
+.eva-upload-status {
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.eva-upload-status.is-done { background: rgba(52,211,153,.12); }
+.eva-upload-status.is-error { background: rgba(248,113,113,.12); }
+
+.eva-upload-remove {
+  flex: 0 0 25px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 19px;
+  line-height: 1;
+  transition: color .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.eva-upload-remove:hover {
+  color: var(--red, #f87171);
+  background: rgba(248,113,113,.09);
+  border-color: rgba(248,113,113,.2);
+}
+
+@keyframes eva-cloud-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes eva-cloud-active {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.035); }
+}
+@keyframes eva-cloud-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes eva-file-progress {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+@keyframes eva-upload-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-cloud-symbol, .eva-cloud-orbit, .eva-file-progress-indicator {
+    animation: none !important;
+  }
+  .eva-cloud-dropzone, .eva-upload-file-card, .eva-upload-remove {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .eva-cloud-dropzone { min-height: 200px; padding: 18px 10px 15px; border-radius: 14px; }
+  .eva-cloud-symbol { width: 62px; height: 62px; border-radius: 19px; }
+  .eva-cloud-symbol svg { width: 38px; height: 38px; }
+  .eva-upload-file-card { gap: 8px; padding: 8px; }
+  .eva-file-type-icon { flex-basis: 34px; width: 34px; height: 39px; font-size: 8px; }
+}
+

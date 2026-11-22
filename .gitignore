@@ -1,0 +1,72 @@
+# Update 51 runtime artifacts (instance-local)
+learning_loop.db
+data/learning_datasets/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Generated artifacts
+*.pptx
+*.xlsx
+*.xlsm
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*.class
+
+# Local/runtime databases
+*.db
+*.db-*
+*.db.backup
+*.db.*
+
+# Local backup files
+*.backup*
+*-backup
+# Local development environments
+.venv*/
+**/.venv*/
+**/venv/
+**/node_modules/
+
+# Local uploads and temporary data
+**/uploads/
+**/temp_*/
+**/tmp/
+
+# Generated databases and vector stores
+**/chroma_db/
+**/faiss_index/
+**/user_knowledge_bases/
+
+# Training artifacts and model binaries
+**/training_runs/
+**/unsloth_compiled_cache/
+*.keras
+*.pkl
+*.pickle
+*.safetensors
+*.gguf
+*.onnx
+*.pt
+*.pth
+
+# Logs and generated build output
+*.log
+*.tmp
+**/logs/
+**/build/
+**/dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Local backup files
+*.bak
+*.before-*
+*.pre_*
